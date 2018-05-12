@@ -3,8 +3,8 @@ import 'dart:html';
 import 'dart:html_common';
 import 'dart:math' as Math;
 
-import 'colour.dart';
-import 'logger.dart';
+import 'package:CommonLib/colour.dart';
+import 'package:CommonLib/logger.dart';
 
 class ColourPicker {
     static Logger logger = Logger.get("ColourPicker", false);

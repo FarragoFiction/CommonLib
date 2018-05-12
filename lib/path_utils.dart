@@ -1,6 +1,6 @@
 import 'dart:html';
 import 'dart:math' as Math;
-import 'logger.dart';
+import 'package:CommonLib/logger.dart';
 
 abstract class PathUtils {
     static Logger logger = Logger.get("Path Utils", false);

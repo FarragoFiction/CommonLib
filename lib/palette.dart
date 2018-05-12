@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:html';
 
-import 'colour.dart';
+import 'package:CommonLib/colour.dart';
 
 class Palette extends Object with IterableMixin<Colour>{
     static Colour MISSING_COLOUR = new Colour(255,0,255);
