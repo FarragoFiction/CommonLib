@@ -1,5 +1,5 @@
 import "dart:html";
-import 'package:CommonLib/predicates.dart';
+import 'package:CommonLib/src/utility/predicates.dart';
 
 class Search {
     static String _stringMapping(String s) => s; // default mapping for when we have strings
