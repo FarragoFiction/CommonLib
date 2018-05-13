@@ -3,6 +3,7 @@ import 'dart:math' as Math;
 import 'package:CommonLib/src/logging/logger.dart';
 
 abstract class PathUtils {
+    static const String _TAGNAME = "rootdepth";
     static Logger logger = Logger.get("Path Utils", false);
 
     static Map<Uri, int> _pathdepth = <Uri, int>{};
@@ -12,6 +13,7 @@ abstract class PathUtils {
         int depth = _getDepthFromMeta(hereUrl);
         if (depth < 0) {
             logger.warn("Falling back to css path depth detection");
+            logger.warn("To avoid this warning, include a meta tag named '$_TAGNAME' with the number of levels removed from site root this page is as content.");
             depth = _getDepthFromCSS(hereUrl);
         }
         if (depth < 0) {
@@ -24,10 +26,10 @@ abstract class PathUtils {
     static int _getDepthFromMeta(String hereUrl) {
         List<Element> meta = querySelectorAll("meta");
         for (Element e in meta) {
-            if (e is MetaElement && e.name == "rootdepth") {
+            if (e is MetaElement && e.name == _TAGNAME) {
                 logger.debug("is path meta: ${e.content}");
                 return int.parse(e.content, onError: (String source) {
-                    logger.warn("rootdepth meta element has invalid value (should be an int): ${e.content}");
+                    logger.warn("$_TAGNAME meta element has invalid value (should be an int): ${e.content}");
                     return -1;
                 });
             }
