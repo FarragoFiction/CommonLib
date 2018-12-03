@@ -7,7 +7,7 @@ class JsonHandler {
 
     JsonHandler(Map<String, dynamic> this.data);
 
-    T get<T>(String location, [T fallback = null]) {
+    T getValue<T>(String location, [T fallback = null]) {
         List<String> tags = location.split(".");
         dynamic object = data;
 
