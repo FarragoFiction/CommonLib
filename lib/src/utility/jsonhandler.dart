@@ -11,7 +11,7 @@ class JsonHandler {
         List<String> tags = location.split(".");
         dynamic object = data;
 
-        for (int level = 0; level < data.length; level++) {
+        for (int level = 0; level < tags.length; level++) {
             String tag = tags[level];
 
             if (object is Map) {
@@ -19,7 +19,7 @@ class JsonHandler {
                     _logger.warn("Map ${tags.getRange(0, level).join(".")} does not contain key $tag, falling back.");
                     return fallback;
                 }
-                if (level == data.length - 1) {
+                if (level == tags.length - 1) {
                     return object[tag];
                 } else {
                     object = object[tag];
@@ -30,7 +30,7 @@ class JsonHandler {
                     _logger.warn("Attempted to index list ${tags.getRange(0, level).join(".")} with invalid int or out of range: $tag, falling back.");
                     return fallback;
                 }
-                if (level == data.length - 1) {
+                if (level == tags.length - 1) {
                     return object[pos];
                 } else {
                     object = object[pos];
