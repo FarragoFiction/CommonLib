@@ -23,3 +23,5 @@ class Tuple<T,U> {
     @override
     String toString() => "[$first, $second]";
 }
+
+typedef U Mapping<T,U>(T object);
