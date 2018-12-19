@@ -36,7 +36,7 @@ class JsonHandler {
                     object = object[pos];
                 }
             } else {
-                _logger.warn("Tag depth ${level + 1} exceeds object depth ${tags.length}, falling back.");
+                _logger.warn("Tag depth ${tags.length} exceeds object depth $level, falling back.");
                 return fallback;
             }
         }

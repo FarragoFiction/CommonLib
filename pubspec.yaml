@@ -7,7 +7,8 @@ author: paradoxLands, jadedResearcher
 environment:
   sdk: '>=1.24.2 <2.0.0'
 
-#dependencies:
+dependencies:
+  source_map_stack_trace: any
 
 dev_dependencies:
   test: ^0.12.0
