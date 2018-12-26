@@ -1,6 +1,7 @@
 import 'dart:html';
 
-import 'package:CommonLib/Utility.dart';
+import 'package:CommonLib/src/utility/path_utils.dart';
+
 
 String simulatedParamsGlobalVar = "";
 
