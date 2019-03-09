@@ -1,6 +1,6 @@
 name: CommonLib
 description: Basic shared components such as a logger, path manipulation and other general use functions.
-version: 0.0.1
+version: 1.24.2
 homepage: https://github.com/FarragoFiction/CommonLib
 author: paradoxLands, jadedResearcher
 
@@ -8,6 +8,7 @@ environment:
   sdk: '>=1.24.2 <2.0.0'
 
 dependencies:
+  js: any
   source_map_stack_trace: any
 
 dev_dependencies:
