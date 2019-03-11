@@ -1,8 +1,8 @@
 @JS()
 library lzstring;
 
-import 'package:js/js.dart';
 import 'dart:typed_data';
+import 'package:js/js.dart';
 
 @JS()
 abstract class LZString {

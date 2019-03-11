@@ -18,7 +18,7 @@ class JSONObject extends Object with MapMixin<String,String>{
         //print("Encoded: ${JSON.encode(test)}");
         //print("String: ${test}");
 
-        json  = JSON.decode(j);
+        json  = jsonDecode(j);
     }
 
     static Set<int> jsonStringToIntSet(String str) {
@@ -99,7 +99,7 @@ class JSONObject extends Object with MapMixin<String,String>{
 
     @override
     String toString() {
-        return JSON.encode(json);
+        return jsonEncode(json);
     }
 
     @override
