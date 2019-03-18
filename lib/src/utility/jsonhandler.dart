@@ -43,4 +43,23 @@ class JsonHandler {
 
         return fallback;
     }
+
+    List<T> getArray<T>(String location) {
+        // ignore: always_specify_types
+        var value = this.getValue(location);
+
+        if (value != null && value is List<dynamic>) {
+            List<T> list = <T>[];
+
+            // ignore: always_specify_types
+            for (var item in value) {
+                if (item is T) {
+                    list.add(item);
+                }
+            }
+
+            return list;
+        }
+        return null;
+    }
 }
