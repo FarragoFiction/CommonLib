@@ -44,16 +44,16 @@ class JsonHandler {
         return fallback;
     }
 
-    List<T> getArray<T>(String location) {
+    List<U> getArray<T extends List<U>, U>(String location) {
         // ignore: always_specify_types
         var value = this.getValue(location);
 
         if (value != null && value is List<dynamic>) {
-            List<T> list = <T>[];
+            List<U> list = <U>[];
 
             // ignore: always_specify_types
             for (var item in value) {
-                if (item is T) {
+                if (item is U) {
                     list.add(item);
                 }
             }
