@@ -6,7 +6,7 @@ import 'dart:collection';
 import 'dart:convert';
 
 class JSONObject extends Object with MapMixin<String,String>{
-    Map<String, String> json = new Map<String,String>();
+    Map<String, dynamic> json = new Map<String,dynamic>();
     JSONObject();
 
     JSONObject.fromJSONString(String j){
@@ -104,7 +104,7 @@ class JSONObject extends Object with MapMixin<String,String>{
 
     @override
     String operator [](Object key) {
-        return json[key];
+        return json[key] as String;
     }
 
     @override
