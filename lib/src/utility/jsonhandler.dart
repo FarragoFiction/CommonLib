@@ -25,7 +25,7 @@ class JsonHandler {
                     object = object[tag];
                 }
             } else if (object is List) {
-                int pos = int.parse(tag, onError: (String tag) => -1);
+                int pos = int.tryParse(tag) ?? -1;
                 if (pos < 0 || pos >= object.length) {
                     _logger.warn("Attempted to index list ${tags.getRange(0, level).join(".")} with invalid int or out of range: $tag, falling back.");
                     return fallback;
@@ -44,16 +44,16 @@ class JsonHandler {
         return fallback;
     }
 
-    List<U> getArray<T extends List<U>, U>(String location) {
+    List<T> getArray<T>(String location) {
         // ignore: always_specify_types
         var value = this.getValue(location);
 
         if (value != null && value is List<dynamic>) {
-            List<U> list = <U>[];
+            List<T> list = <T>[];
 
             // ignore: always_specify_types
             for (var item in value) {
-                if (item is U) {
+                if (item is T) {
                     list.add(item);
                 }
             }
