@@ -104,7 +104,7 @@ class JSONObject extends Object with MapMixin<String,String>{
 
     @override
     String operator [](Object key) {
-        return json[key].toString();
+        return json[key] as String;
     }
 
     @override
