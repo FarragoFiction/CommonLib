@@ -1,15 +1,15 @@
 import 'dart:html';
 
 enum LogLevel {
-    ERROR,
-    WARN,
-    INFO,
-    VERBOSE,
-    DEBUG
+    error,
+    warn,
+    info,
+    verbose,
+    debug
 }
 
 /// Template for methods which print stuff
-typedef void LoggerPrintFunction(Object arg);
+typedef LoggerPrintFunction = void Function(Object arg);
 
 class Logger {
     /// Whether .verbose messages should be shown at all.
@@ -32,7 +32,7 @@ class Logger {
     Logger(String this.name, [bool this.printDebug = false]);
 
     /// Convenience method for getting a logger.
-    static Logger get(String name, [bool debug = true]) {
+    factory Logger.get(String name, [bool debug = true]) {
         return new Logger(name, debug);
     }
 
@@ -43,9 +43,9 @@ class Logger {
 
     /// Gets the console method for a LogLevel
     static LoggerPrintFunction _getPrintForLevel(LogLevel level) {
-        if (level == LogLevel.ERROR) { return window.console.error; }
-        if (level == LogLevel.WARN) { return window.console.warn; }
-        if (level == LogLevel.VERBOSE) { return window.console.info; }
+        if (level == LogLevel.error) { return window.console.error; }
+        if (level == LogLevel.warn) { return window.console.warn; }
+        if (level == LogLevel.verbose) { return window.console.info; }
         return print;
     }
 
@@ -57,30 +57,30 @@ class Logger {
 
     /// NOW YOU FUCKED UP
     void error(Object arg) {
-        this.log(LogLevel.ERROR, arg);
+        this.log(LogLevel.error, arg);
     }
 
     /// Yellow, for picking out mistakes
     void warn(Object arg) {
-        this.log(LogLevel.WARN, arg);
+        this.log(LogLevel.warn, arg);
     }
 
     /// Normal output
     void info(Object arg) {
-        this.log(LogLevel.INFO, arg);
+        this.log(LogLevel.info, arg);
     }
 
     /// For extra info not shown in some cases
     void verbose(Object arg) {
         if (printVerbose) {
-            this.log(LogLevel.VERBOSE, arg);
+            this.log(LogLevel.verbose, arg);
         }
     }
 
     /// For development
     void debug(Object arg) {
         if ((!(0.0 is int)) && this.printDebug) {
-            this.log(LogLevel.DEBUG, arg);
+            this.log(LogLevel.debug, arg);
         }
     }
 }

@@ -9,12 +9,12 @@ class Thingy {
     String text;
     Colour bgColor;
 
-    Thingy(String this.text, [Colour this.bgColor =null]){
-        if(bgColor == null) bgColor = new Colour(0,0,0); //default is black
+    Thingy(String this.text, [Colour this.bgColor]){
+        bgColor ??= new Colour(0,0,0); //default is black
     }
 
     void renderSelf(Element container) {
-        LIElement me = new LIElement();
+        final LIElement me = new LIElement();
         container.append(me);
         me.text = text;
         me.style.color = bgColor.toStyleString();

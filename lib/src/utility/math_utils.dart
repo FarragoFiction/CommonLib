@@ -16,14 +16,14 @@ double smoothstepRange(double min, double max, double val) {
 ///
 /// Acts the same as max(a,b) except when the difference is less than diff, where smoothing occurs.
 double polymax(double a, double b, double diff) {
-    double h = (0.5 + 0.5 * (b-a) / diff).clamp(0.0, 1.0);
+    final double h = (0.5 + 0.5 * (b-a) / diff).clamp(0.0, 1.0);
     return (b * h + a * (1.0 - h)) + diff * h * (1.0 - h);
 }
 
 double smoothCap(double val, double limit, double startval, double divisor) {
     double n = (val - startval)/(limit - startval);
 
-    double mix = smoothstep(n);
+    final double mix = smoothstep(n);
 
     n = (1-mix) * n + mix * (n / (divisor + n));
 
@@ -31,6 +31,6 @@ double smoothCap(double val, double limit, double startval, double divisor) {
 }
 
 double angleDiff(double a, double b) {
-    double diff = a - b + Math.pi;
+    final double diff = a - b + Math.pi;
     return (diff - (diff/(Math.pi*2)).floorToDouble() * Math.pi * 2) - Math.pi;
 }

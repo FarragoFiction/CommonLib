@@ -2,10 +2,10 @@ import 'dart:html';
 import 'dart:math';
 
 class Colour {
-    static const double DEFAULT_GAMMA = 2.2;
-    static const List<double> REFERENCE_WHITE = const <double>[095.047, 100.000, 108.883];
-    static const double XYZ_EPSILON = 0.008856;
-    static const double XYZ_KAPPA = 903.3;
+    static const double defaultGamma = 2.2;
+    static const List<double> referenceWhite = <double>[095.047, 100.000, 108.883];
+    static const double xyzEpsilon = 0.008856;
+    static const double xyzKappa = 903.3;
 
     int _alpha;
 
@@ -33,7 +33,7 @@ class Colour {
     }
 
     factory Colour.from(Colour other) {
-        Colour col = new Colour(other.red, other.green, other.blue, other.alpha);
+        final Colour col = new Colour(other.red, other.green, other.blue, other.alpha);
 
         if (!other._hsv_dirty) {
             col.setHSV(other._hue, other._saturation, other._value);
@@ -58,16 +58,16 @@ class Colour {
 
     factory Colour.fromHex(int hex, [bool useAlpha = false]) {
         if (useAlpha) {
-            int red = (hex & 0xFF000000) >> 24;
-            int green = (hex & 0x00FF0000) >> 16;
-            int blue = (hex & 0x0000FF00) >> 8;
-            int alpha = (hex & 0x000000FF);
+            final int red = (hex & 0xFF000000) >> 24;
+            final int green = (hex & 0x00FF0000) >> 16;
+            final int blue = (hex & 0x0000FF00) >> 8;
+            final int alpha = (hex & 0x000000FF);
 
             return new Colour(red, green, blue, alpha);
         } else {
-            int red = (hex & 0xFF0000) >> 16;
-            int green = (hex & 0x00FF00) >> 8;
-            int blue = (hex & 0x0000FF);
+            final int red = (hex & 0xFF0000) >> 16;
+            final int green = (hex & 0x00FF00) >> 8;
+            final int blue = (hex & 0x0000FF);
 
             return new Colour(red, green, blue);
         }
@@ -102,20 +102,20 @@ class Colour {
     int get blue  => _blue;
     int get alpha => _alpha;
 
-    void set red(int val)   { _red   = val.clamp(0,0xFF); this._dirty(); }
-    void set green(int val) { _green = val.clamp(0,0xFF); this._dirty(); }
-    void set blue(int val)  { _blue  = val.clamp(0,0xFF); this._dirty(); }
-    void set alpha(int val) { _alpha = val.clamp(0,0xFF); }
+    set red(int val)   { _red   = val.clamp(0,0xFF); this._dirty(); }
+    set green(int val) { _green = val.clamp(0,0xFF); this._dirty(); }
+    set blue(int val)  { _blue  = val.clamp(0,0xFF); this._dirty(); }
+    set alpha(int val) { _alpha = val.clamp(0,0xFF); }
 
     double get redDouble =>     red /   0xFF;
     double get greenDouble =>   green / 0xFF;
     double get blueDouble =>    blue /  0xFF;
     double get alphaDouble =>   alpha / 0xFF;
 
-    void set redDouble(double val)  { this.red   = (val*0xFF).floor(); }
-    void set greenDouble(double val){ this.green = (val*0xFF).floor(); }
-    void set blueDouble(double val) { this.blue  = (val*0xFF).floor(); }
-    void set alphaDouble(double val){ this.alpha = (val*0xFF).floor(); }
+    set redDouble(double val)  { this.red   = (val*0xFF).floor(); }
+    set greenDouble(double val){ this.green = (val*0xFF).floor(); }
+    set blueDouble(double val) { this.blue  = (val*0xFF).floor(); }
+    set alphaDouble(double val){ this.alpha = (val*0xFF).floor(); }
 
     void setRGB(int red, int green, int blue) {
         this.red = red;
@@ -129,9 +129,9 @@ class Colour {
     double get saturation { this._checkHSV(); return _saturation; }
     double get value      { this._checkHSV(); return _value; }
 
-    void set hue(double val)        { this._checkHSV(); _hue        = val; this._updateRGBfromHSV(); }
-    void set saturation(double val) { this._checkHSV(); _saturation = val; this._updateRGBfromHSV(); }
-    void set value(double val)      { this._checkHSV(); _value      = val; this._updateRGBfromHSV(); }
+    set hue(double val)        { this._checkHSV(); _hue        = val; this._updateRGBfromHSV(); }
+    set saturation(double val) { this._checkHSV(); _saturation = val; this._updateRGBfromHSV(); }
+    set value(double val)      { this._checkHSV(); _value      = val; this._updateRGBfromHSV(); }
 
     void setHSV(double h, double s, double v) {
         this._hue = h;
@@ -146,9 +146,9 @@ class Colour {
     double get lab_a         { this._checkLAB(); return _lab_a; }
     double get lab_b         { this._checkLAB(); return _lab_b; }
 
-    void set lab_lightness(double val) { this._checkLAB(); _lab_lightness = val; this._updateRGBfromLAB(); }
-    void set lab_a(double val)         { this._checkLAB(); _lab_a         = val; this._updateRGBfromLAB(); }
-    void set lab_b(double val)         { this._checkLAB(); _lab_b         = val; this._updateRGBfromLAB(); }
+    set lab_lightness(double val) { this._checkLAB(); _lab_lightness = val; this._updateRGBfromLAB(); }
+    set lab_a(double val)         { this._checkLAB(); _lab_a         = val; this._updateRGBfromLAB(); }
+    set lab_b(double val)         { this._checkLAB(); _lab_b         = val; this._updateRGBfromLAB(); }
 
     void setLAB(double l, double a, double b) {
         this._lab_lightness = l;
@@ -161,38 +161,38 @@ class Colour {
         return reverse ? val*100 : val*0.01;
     }
 
-    static const double _LAB_MIN_A = -86.18463649762525;
-    static const double _LAB_MAX_A = 98.25421868616114;
+    static const double _labMinA = -86.18463649762525;
+    static const double _labMaxA = 98.25421868616114;
     double _lab_scale_a(double val, bool reverse) {
         if (reverse) {
             if (val < 0.5) {
-                return (1 - (val * 2)) * _LAB_MIN_A;
+                return (1 - (val * 2)) * _labMinA;
             } else {
-                return ((val - 0.5) * 2) * _LAB_MAX_A;
+                return ((val - 0.5) * 2) * _labMaxA;
             }
         } else {
             if (val < 0) {
-                return (1 - (val / _LAB_MIN_A)) * 0.5;
+                return (1 - (val / _labMinA)) * 0.5;
             } else {
-                return (val / _LAB_MAX_A) * 0.5 + 0.5;
+                return (val / _labMaxA) * 0.5 + 0.5;
             }
         }
     }
 
-    static const double _LAB_MIN_B = -107.86368104495168;
-    static const double _LAB_MAX_B = 94.48248544644461;
+    static const double _labMinB = -107.86368104495168;
+    static const double _labMaxB = 94.48248544644461;
     double _lab_scale_b(double val, bool reverse) {
         if (reverse) {
             if (val < 0.5) {
-                return (1 - (val * 2)) * _LAB_MIN_B;
+                return (1 - (val * 2)) * _labMinB;
             } else {
-                return ((val - 0.5) * 2) * _LAB_MAX_B;
+                return ((val - 0.5) * 2) * _labMaxB;
             }
         } else {
             if (val < 0) {
-                return (1 - (val / _LAB_MIN_B)) * 0.5;
+                return (1 - (val / _labMinB)) * 0.5;
             } else {
-                return (val / _LAB_MAX_B) * 0.5 + 0.5;
+                return (val / _labMaxB) * 0.5 + 0.5;
             }
         }
     }
@@ -201,9 +201,9 @@ class Colour {
     double get lab_a_scaled         => _lab_scale_a(this.lab_a, false);
     double get lab_b_scaled         => _lab_scale_b(this.lab_b, false);
 
-    void set lab_lightness_scaled(double val) { this.lab_lightness = _lab_scale_l(val, true); }
-    void set lab_a_scaled(double val)         { this.lab_a = _lab_scale_a(val, true); }
-    void set lab_b_scaled(double val)         { this.lab_b = _lab_scale_b(val, true); }
+    set lab_lightness_scaled(double val) { this.lab_lightness = _lab_scale_l(val, true); }
+    set lab_a_scaled(double val)         { this.lab_a = _lab_scale_a(val, true); }
+    set lab_b_scaled(double val)         { this.lab_b = _lab_scale_b(val, true); }
 
     void setLABScaled(double l, double a, double b) {
         this._lab_lightness = _lab_scale_l(l, true);
@@ -256,19 +256,19 @@ class Colour {
         return (this * (1-fraction)) + (other * fraction);
     }
 
-    Colour mixGamma(Colour other, double fraction, [double gamma = DEFAULT_GAMMA]) {
+    Colour mixGamma(Colour other, double fraction, [double gamma = defaultGamma]) {
         fraction = fraction.clamp(0.0, 1.0);
-        double inverse = 1.0 / gamma;
+        final double inverse = 1.0 / gamma;
 
-        double r = pow( _lerp( pow(this.redDouble, gamma), pow(other.redDouble, gamma), fraction), inverse);
-        double g = pow( _lerp( pow(this.greenDouble, gamma), pow(other.greenDouble, gamma), fraction), inverse);
-        double b = pow( _lerp( pow(this.blueDouble, gamma), pow(other.blueDouble, gamma), fraction), inverse);
-        double a = _lerp(this.alphaDouble, other.alphaDouble, fraction);
+        final double r = pow( _lerp( pow(this.redDouble, gamma), pow(other.redDouble, gamma), fraction), inverse);
+        final double g = pow( _lerp( pow(this.greenDouble, gamma), pow(other.greenDouble, gamma), fraction), inverse);
+        final double b = pow( _lerp( pow(this.blueDouble, gamma), pow(other.blueDouble, gamma), fraction), inverse);
+        final double a = _lerp(this.alphaDouble, other.alphaDouble, fraction);
 
         return new Colour.double(r,g,b,a);
     }
 
-    Colour mix(Colour other, double fraction, [bool useGamma = false, double gamma = DEFAULT_GAMMA]) {
+    Colour mix(Colour other, double fraction, [bool useGamma = false, double gamma = defaultGamma]) {
         if (useGamma) {
             return this.mixGamma(other, fraction, gamma);
         }
@@ -363,23 +363,23 @@ class Colour {
     Colour operator +(dynamic other) {
         if (other is Colour) {
             return new Colour(this.red + other.red, this.green + other.green, this.blue + other.blue, this.alpha + other.alpha);
-        } else if (other is double) {
+        } else if (other is num) {
             return new Colour.double(this.redDouble + other, this.greenDouble + other, this.blueDouble + other, this.alphaDouble);
-        } else if (other is int) {
+        } /*else if (other is int) {
             return new Colour(this.red + other, this.green + other, this.blue + other, this.alpha);
-        }
-        throw "Cannot add [${other.runtimeType} $other] to a Colour. Only Colour, double and int are valid.";
+        }*/
+        throw Exception("Cannot add [${other.runtimeType} $other] to a Colour. Only Colour, double and int are valid.");
     }
 
     Colour operator -(dynamic other) {
         if (other is Colour) {
             return new Colour(this.red - other.red, this.green - other.green, this.blue - other.blue, this.alpha - other.alpha);
-        } else if (other is double) {
+        } else if (other is num) {
             return new Colour.double(this.redDouble - other, this.greenDouble - other, this.blueDouble - other, this.alphaDouble);
-        } else if (other is int) {
+        }/* else if (other is int) {
             return new Colour(this.red - other, this.green - other, this.blue - other, this.alpha);
-        }
-        throw "Cannot subtract [${other.runtimeType} $other] from a Colour. Only Colour, double and int are valid.";
+        }*/
+        throw Exception("Cannot subtract [${other.runtimeType} $other] from a Colour. Only Colour, double and int are valid.");
     }
 
     Colour operator /(dynamic other) {
@@ -388,7 +388,7 @@ class Colour {
         } else if (other is num) {
             return new Colour.double(this.redDouble / other, this.greenDouble / other, this.blueDouble / other, this.alphaDouble);
         }
-        throw "Cannot divide a Colour by [${other.runtimeType} $other]. Only Colour, double and int are valid.";
+        throw Exception("Cannot divide a Colour by [${other.runtimeType} $other]. Only Colour, double and int are valid.");
     }
 
     Colour operator *(dynamic other) {
@@ -397,7 +397,7 @@ class Colour {
         } else if (other is num) {
             return new Colour.double(this.redDouble * other, this.greenDouble * other, this.blueDouble * other, this.alphaDouble);
         }
-        throw "Cannot multiply a Colour by [${other.runtimeType} $other]. Only Colour, double and int are valid.";
+        throw Exception("Cannot multiply a Colour by [${other.runtimeType} $other]. Only Colour, double and int are valid.");
     }
 
     int operator [](int index) {
@@ -405,11 +405,11 @@ class Colour {
         if (index == 1) return green;
         if (index == 2) return blue;
         if (index == 3) return alpha;
-        throw "Colour index out of range: $index";
+        throw Exception("Colour index out of range: $index");
     }
 
     void operator []=(int index, num value) {
-        if (index < 0 || index > 3) { throw "Colour index out of range: $index"; }
+        if (index < 0 || index > 3) { throw Exception("Colour index out of range: $index"); }
         if (value is int) {
             if (index == 0) {
                 this.red = value;
@@ -436,13 +436,13 @@ class Colour {
     // Static conversions ###################################################################################
 
     static List<double> RGBtoHSV(double r, double g, double b) {
-        double maximum = max(max(r,g),b);
-        double minimum = min(min(r,g),b);
+        final double maximum = max(max(r,g),b);
+        final double minimum = min(min(r,g),b);
 
-        double v = maximum;
-        double delta = maximum-minimum;
+        final double v = maximum;
+        final double delta = maximum-minimum;
 
-        double s = maximum == 0.0 ? 0.0 : delta / maximum;
+        final double s = maximum == 0.0 ? 0.0 : delta / maximum;
 
         double h;
 
@@ -466,13 +466,13 @@ class Colour {
     static List<double> HSVtoRGB(double h, double s, double v) {
         double r,g,b;
 
-        int i = (h*6).floor();
-        double f = h * 6 - i;
-        double p = v * (1-s);
-        double q = v * (1-f*s);
-        double t = v * (1-(1-f)*s);
+        final int i = (h*6).floor();
+        final double f = h * 6 - i;
+        final double p = v * (1-s);
+        final double q = v * (1-f*s);
+        final double t = v * (1-(1-f)*s);
 
-        int sec = i % 6;
+        final int sec = i % 6;
 
         if (sec == 0) {
             r = v;
@@ -504,7 +504,7 @@ class Colour {
     }
 
     static List<double> RGBtoLAB(double r, double g, double b) {
-        List<double> xyz = RGBtoXYZ(r,g,b);
+        final List<double> xyz = RGBtoXYZ(r,g,b);
         return XYZtoLAB(xyz[0], xyz[1], xyz[2]);
     }
 
@@ -521,19 +521,19 @@ class Colour {
     }
 
     static List<double> XYZtoLAB(double x, double y, double z) {
-        x /= REFERENCE_WHITE[0];
-        y /= REFERENCE_WHITE[1];
-        z /= REFERENCE_WHITE[2];
+        x /= referenceWhite[0];
+        y /= referenceWhite[1];
+        z /= referenceWhite[2];
 
-        x = x > XYZ_EPSILON ? pow(x, 1/3.0) : (XYZ_KAPPA * x + 16) / 116.0;
-        y = y > XYZ_EPSILON ? pow(y, 1/3.0) : (XYZ_KAPPA * y + 16) / 116.0;
-        z = z > XYZ_EPSILON ? pow(z, 1/3.0) : (XYZ_KAPPA * z + 16) / 116.0;
+        x = x > xyzEpsilon ? pow(x, 1/3.0) : (xyzKappa * x + 16) / 116.0;
+        y = y > xyzEpsilon ? pow(y, 1/3.0) : (xyzKappa * y + 16) / 116.0;
+        z = z > xyzEpsilon ? pow(z, 1/3.0) : (xyzKappa * z + 16) / 116.0;
 
         return <double>[max(0.0, 116 * y - 16), 500 * (x - y), 200 * (y - z)];
     }
 
     static List<double> LABtoRGB(double lab_l, double lab_a, double lab_b) {
-        List<double> xyz = LABtoXYZ(lab_l, lab_a, lab_b);
+        final List<double> xyz = LABtoXYZ(lab_l, lab_a, lab_b);
         return XYZtoRGB(xyz[0], xyz[1], xyz[2]);
     }
 
@@ -562,12 +562,12 @@ class Colour {
         x = a / 500.0 + y;
         z = y - b / 200.0;
 
-        double x3 = x * x * x;
-        double z3 = z * z * z;
+        final double x3 = x * x * x;
+        final double z3 = z * z * z;
         return <double>[
-            REFERENCE_WHITE[0] * (x3 > XYZ_EPSILON ? x3 : (x - 16 / 116.0) / 7.787),
-            REFERENCE_WHITE[1] * (l > (XYZ_KAPPA * XYZ_EPSILON) ? pow(((l + 16) / 116.0), 3): l / XYZ_KAPPA),
-            REFERENCE_WHITE[2] * (z3 > XYZ_EPSILON ? z3 : (x - 16 / 116.0) / 7.787)
+            referenceWhite[0] * (x3 > xyzEpsilon ? x3 : (x - 16 / 116.0) / 7.787),
+            referenceWhite[1] * (l > (xyzKappa * xyzEpsilon) ? pow(((l + 16) / 116.0), 3): l / xyzKappa),
+            referenceWhite[2] * (z3 > xyzEpsilon ? z3 : (x - 16 / 116.0) / 7.787)
         ];
     }
 }

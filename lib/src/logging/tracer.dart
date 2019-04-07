@@ -32,11 +32,11 @@ class JSFrame {
     external String get source;
 }
 
-typedef void TracerCallback(JSContainer frames);
+typedef TracerCallback = void Function(JSContainer frames);
 
 class Tracer {
-    static Map<String, SourceMaps.Mapping> _mappings = new HashMap<String, SourceMaps.Mapping>();
-    static SourceMaps.Mapping _MISSING = new NullMapping();
+    static final Map<String, SourceMaps.Mapping> _mappings = new HashMap<String, SourceMaps.Mapping>();
+    static final SourceMaps.Mapping _MISSING = new NullMapping();
 
     static void writeTrace(String error, Element outputContainer) {
         // tests if we're in js or not... try not to use this, it's really very bad...
@@ -50,20 +50,20 @@ class Tracer {
     }
 
     static void _processJsTrace(JSContainer framecontainer, Element container) {
-        List<JSFrame> jsframes = framecontainer.payload;
+        final List<JSFrame> jsframes = framecontainer.payload;
 
-        List<Frame> frames = <Frame>[];
+        final List<Frame> frames = <Frame>[];
 
-        String packageRoot = null;
-        String framePath = null;
+        String packageRoot;
+        String framePath;
 
-        for (JSFrame jsframe in jsframes) {
+        for (final JSFrame jsframe in jsframes) {
             frames.add(new Frame(Uri.parse(jsframe.fileName), jsframe.lineNumber, jsframe.columnNumber, jsframe.functionName));
 
             framePath = jsframe.fileName;
         }
 
-        String pagePath = window.location.href;
+        final String pagePath = window.location.href;
 
         int similar = -1;
         for (int i=0; i<min(framePath.length, pagePath.length); i++) {
@@ -75,9 +75,9 @@ class Tracer {
         }
 
         if (similar >= 0) {
-            String scriptPath = framePath.substring(similar+1);
-            int subdirs = max(0,scriptPath.split("/").length-1);
-            StringBuffer sb = new StringBuffer();
+            final String scriptPath = framePath.substring(similar+1);
+            final int subdirs = max(0,scriptPath.split("/").length-1);
+            final StringBuffer sb = new StringBuffer();
             for (int i=0; i<subdirs; i++) {
                 sb.write("../");
             }
@@ -100,7 +100,7 @@ class Tracer {
     }
 
     static void _processDartTrace(String error, Element container) {
-        Trace trace = new Trace.parse(error.split("\n").skip(2).join("\n"));
+        final Trace trace = new Trace.parse(error.split("\n").skip(2).join("\n"));
 
         writeTraceToPage(trace, container);
     }
@@ -114,7 +114,7 @@ class Tracer {
     }
 
     static ScriptElement getTheScript() {
-        Iterable<ScriptElement> tags = querySelectorAll("script").where((Element e) {
+        final Iterable<ScriptElement> tags = querySelectorAll("script").where((Element e) {
             if (e is ScriptElement) {
                 if (e.src.contains(".dart")) {
                     return true;
@@ -128,20 +128,20 @@ class Tracer {
         return tags.first;
     }
 
-    static void getMappingForCurrentScript(void callback(SourceMaps.Mapping mapping)) {
-        ScriptElement current = getTheScript();
-        if (current == null) { return null; }
+    static void getMappingForCurrentScript(void Function(SourceMaps.Mapping mapping) callback) {
+        final ScriptElement current = getTheScript();
+        if (current == null) { return; }
 
-        String path = current.src;
+        final String path = current.src;
         ////print("path: $path");
 
-        if (!path.endsWith(".js")) { return null; }
+        if (!path.endsWith(".js")) { return; }
 
         if (!_mappings.containsKey(path)) {
-            String mapFile = "$path.map";
+            final String mapFile = "$path.map";
 
             HttpRequest.getString(mapFile)..then((String content) {
-                SourceMaps.Mapping mapping = SourceMaps.parse(content);
+                final SourceMaps.Mapping mapping = SourceMaps.parse(content);
                 if (mapping == null) {
                     ////print("null mapping");
                     _mappings[path] = _MISSING;
@@ -150,7 +150,7 @@ class Tracer {
                     _mappings[path] = mapping;
                 }
 
-                SourceMaps.Mapping out = null;
+                SourceMaps.Mapping out;
 
                 if (_mappings[path] != _MISSING) {
                     out = _mappings[path];

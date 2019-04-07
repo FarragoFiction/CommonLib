@@ -3,21 +3,23 @@ import 'dart:html';
 
 import 'package:CommonLib/src/colours/colour.dart';
 
+// sigh
+// ignore: prefer_mixin
 class Palette extends Object with IterableMixin<Colour>{
     static Colour MISSING_COLOUR = new Colour(255,0,255);
 
-    HashMap<String, Colour> _colours = new HashMap<String, Colour>();
-    HashMap<int, Colour> _colourIds = new HashMap<int, Colour>();
-    HashMap<String, int> _name2id = new HashMap<String, int>();
-    HashMap<int, String> _id2name = new HashMap<int,String>();
+    final Map<String, Colour> _colours = <String, Colour>{};
+    final Map<int, Colour> _colourIds = <int, Colour>{};
+    final Map<String, int> _name2id = <String, int>{};
+    final Map<int, String> _id2name = <int,String>{};
 
-    Palette() {}
+    Palette();
 
     factory Palette.combined(List<Palette> operands) {
-        Palette palette = new Palette();
+        final Palette palette = new Palette();
 
-        for (Palette o in operands) {
-            for (String name in o.names) {
+        for (final Palette o in operands) {
+            for (final String name in o.names) {
                 palette.add(name, o[name], true);
             }
         }
@@ -49,7 +51,7 @@ class Palette extends Object with IterableMixin<Colour>{
         if (this._colours.containsKey(name)) {
             this.remove(name);
         }
-        int id = _nextFreeId();
+        final int id = _nextFreeId();
         if (id >= 256) {
             throw new ArgumentError.value(id, "Palette colour ids must be in the range 0-255");
         }
@@ -67,7 +69,7 @@ class Palette extends Object with IterableMixin<Colour>{
         if (!_colours.containsKey(name)) {
             return;
         }
-        int id = _name2id[name];
+        final int id = _name2id[name];
 
         this._remove(name, id);
     }
@@ -76,7 +78,7 @@ class Palette extends Object with IterableMixin<Colour>{
         if (!_colourIds.containsKey(id)) {
             return;
         }
-        String name = _id2name[id];
+        final String name = _id2name[id];
 
         this._remove(name, id);
     }
@@ -99,7 +101,7 @@ class Palette extends Object with IterableMixin<Colour>{
     }
 
     Element createPreviewElement([String title = "Palette"]) {
-        DivElement element = new DivElement();
+        final DivElement element = new DivElement();
         element.style
             ..padding = "3px"
             ..margin = "3px"
@@ -109,14 +111,14 @@ class Palette extends Object with IterableMixin<Colour>{
 
         element.append(new SpanElement()..style.fontWeight="bold"..text=title);
 
-        for (int id in this._colourIds.keys) {
-            String name = _id2name[id];
+        for (final int id in this._colourIds.keys) {
+            final String name = _id2name[id];
 
-            Colour col = _colourIds[id];
+            final Colour col = _colourIds[id];
 
-            DivElement div = new DivElement();
+            final DivElement div = new DivElement();
 
-            DivElement swatch = new DivElement()..title=col.toStyleString().toUpperCase();
+            final DivElement swatch = new DivElement()..title=col.toStyleString().toUpperCase();
             swatch.style
                 ..position = "relative"
                 ..display = "inline-block"
@@ -125,7 +127,7 @@ class Palette extends Object with IterableMixin<Colour>{
                 ..height = "10px"
                 ..backgroundColor = col.toStyleString();
 
-            SpanElement text = new SpanElement()
+            final SpanElement text = new SpanElement()
                 ..text = "$id: $name";
 
             div..append(swatch)..append(text);

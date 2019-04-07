@@ -9,7 +9,7 @@ class Random implements Math.Random {
 	/// used for spawning a new random from this one without new stuff
 	int _echo;
 
-	Random([int seed = null]) {
+	Random([int seed]) {
 		this.setSeed(seed);
 	}
 
@@ -27,12 +27,12 @@ class Random implements Math.Random {
 	int _nextInt(int max) {
 		//if (max > 2<<31) { //JR: turns out this path makes random do things differently compiled vs dart. let's keep this off for now.
 		if (max > 0xFFFFFFFF) { //PL: THIS works fine though. I blame js and its bitshifting
-			double val = this._impl.nextDouble();
+			final double val = this._impl.nextDouble();
 			_echo = (val * 0xFFFFFFFF).round();
 
 			return (val * max).floor();
 		} else {
-			int val = this._impl.nextInt(max);
+			final int val = this._impl.nextInt(max);
 			_echo = val;
 			return val;
 		}

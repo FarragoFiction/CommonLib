@@ -1,7 +1,7 @@
 import "predicates.dart";
 
-U joinCollection<T, U>(Iterable<T> list, {Transformer<T,U> convert, Combiner<U> combine, U initial = null}) {
-    Iterator<T> iter = list.iterator;
+U joinCollection<T, U>(Iterable<T> list, {Mapping<T,U> convert, Combiner<U> combine, U initial}) {
+    final Iterator<T> iter = list.iterator;
 
     bool first = true;
     U ret = initial;

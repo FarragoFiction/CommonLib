@@ -13,7 +13,7 @@ void loadNavbar() {
 
 void onNavbarLoaded(String data) {
     // PL: oh boy fixing those urls
-    int subdirs = PathUtils.getPathDepth();
+    final int subdirs = PathUtils.getPathDepth();
     data = data.replaceAllMapped(new RegExp("(href|src) ?= ?([\"'])(?!https?:)"), (Match m) => "${m.group(1)} = ${m.group(2)}${"../"*subdirs}");
 
     querySelector("#navbar").appendHtml(data, treeSanitizer: NodeTreeSanitizer.trusted);
@@ -25,8 +25,8 @@ void onNavbarLoaded(String data) {
 String getParamStringMinusParam(String name) {
     String params = window.location.href.substring(window.location.href.indexOf("?") + 1);
     if (params == window.location.href) params = "";
-    String value = getParameterByName(name);
-    String replaceString = "${name}=${value}";
+    final String value = getParameterByName(name);
+    final String replaceString = "$name=$value";
     //print("inside navbar params are $params, name is $name and value is $value, replaceString is $replaceString");
     if(value != null) {
         params = params.replaceAll(replaceString, "");
@@ -39,15 +39,15 @@ String getParamStringMinusParam(String name) {
 //simulatedParamsGlobalVar is the simulated global vars.
 String getParameterByName(String name, [String url]) {
     Uri uri = Uri.base;
-    String tmp = null;
+    String tmp;
     if (url != null) {
         uri = Uri.parse(url);
         // //print("uri is $uri");
-        String tmp = (uri.queryParameters[name]); //doesn't need decoded, guess it was auto decoded with the parse?
+        tmp = (uri.queryParameters[name]); //doesn't need decoded, guess it was auto decoded with the parse?
         if(tmp != null) return tmp;
     } else {
         ////print("uri is $uri");
-        String tmp = (uri.queryParameters[name]);
+        tmp = (uri.queryParameters[name]);
         if (tmp != null) tmp = Uri.decodeComponent(tmp);
         if(tmp != null) return tmp;
     }
@@ -56,12 +56,12 @@ String getParameterByName(String name, [String url]) {
     //one last shot with simulatedParamsGlobalVar;//lets me use existing framework to parse simulated params for tourney
     if(tmp == null && simulatedParamsGlobalVar.isNotEmpty) {
         //print ("Debugging tourney: can't find param $name, so going to check $simulatedParamsGlobalVar");
-        String params =  window.location.href.substring(window.location.href.indexOf("?") + 1);
-        String base = window.location.href.replaceAll("?$params","");
-        String tmpurl = "${base}?$simulatedParamsGlobalVar";
+        final String params =  window.location.href.substring(window.location.href.indexOf("?") + 1);
+        final String base = window.location.href.replaceAll("?$params","");
+        final String tmpurl = "$base?$simulatedParamsGlobalVar";
         ////print("Debugging tourney: base is $base, tmpurl is $tmpurl");
         uri = Uri.parse(tmpurl);
-        String tmp = (uri.queryParameters[name]);
+        final String tmp = (uri.queryParameters[name]);
         //if(tmp != null) print ("Debugging tourney: found param $name, it was $tmp!");
         return tmp;
     }
@@ -81,15 +81,15 @@ void toggleVoid() {
     querySelector('body').style.backgroundColor = "#f8c858";
     querySelector('body').style.backgroundImage = "url(images/pen15_bg1.png)"; //can not unsee the dics now.
     //querySelectorAll(".void").forEach((Element e) => WHAT SHOULD I DO HEAR for DISPLAY:none);
-    List<Element> voidElements = querySelectorAll(".void");
-    for (Element v in voidElements) {
+    final List<Element> voidElements = querySelectorAll(".void");
+    for (final Element v in voidElements) {
         toggle(v);
     }
 }
 
 //work around for dart not having this jquery function except for classes apparently
 void toggle(Element v) {
-    String display = v.style.display;
+    final String display = v.style.display;
     ////print("display is $display");
     if (display == "none" || display.isEmpty) {
         show(v);

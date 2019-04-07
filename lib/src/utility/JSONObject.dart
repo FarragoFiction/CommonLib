@@ -5,16 +5,18 @@
 import 'dart:collection';
 import 'dart:convert';
 
+// WHY DART, WHY?!
+// ignore: prefer_mixin
 class JSONObject extends Object with MapMixin<String,String>{
-    Map<String, dynamic> json = new Map<String,dynamic>();
+    Map<String, dynamic> json = <String,dynamic>{};
     JSONObject();
 
     JSONObject.fromJSONString(String j){
         //print("trying to make a json object from $j ");
         //okay. that's not working. what if i do it opposite to see what a encoded object looks like
-        JSONObject test = new JSONObject();
-        test["HELLO"] = "WORLD ";
-        test["GOODBYE"] = "WORLD BUT A SECOND TIME ";
+        //final JSONObject test = new JSONObject();
+        //test["HELLO"] = "WORLD ";
+        //test["GOODBYE"] = "WORLD BUT A SECOND TIME ";
         //print("Encoded: ${JSON.encode(test)}");
         //print("String: ${test}");
 
@@ -22,21 +24,21 @@ class JSONObject extends Object with MapMixin<String,String>{
     }
 
     static Set<int> jsonStringToIntSet(String str) {
-        if(str == null) return new Set<int>();
+        if(str == null) return <int>{};
         //print("str is $str");
         str = str.replaceAll("{", "");
         str = str.replaceAll("}", "");
         str = str.replaceAll(" ", "");
 
-        List<String> tmp = str.split(",");
-        Set<int> ret = new Set<int>();
-        for(String s in tmp) {
+        final List<String> tmp = str.split(",");
+        final Set<int> ret = <int>{};
+        for(final String s in tmp) {
             //print("s is $s");
             try {
-                int i = int.parse(s);
+                final int i = int.parse(s);
                 //print("adding $i");
                 ret.add(i);
-            }catch(e) {
+            } on Exception {
                 //oh well. probably a bracket or a space or something
             }
         }
@@ -44,21 +46,21 @@ class JSONObject extends Object with MapMixin<String,String>{
     }
 
     static List<int> jsonStringToIntArray(String str) {
-        if(str == null) return new List<int>();
+        if(str == null) return <int>[];
         //;
         str = str.replaceAll("[", "");
         str = str.replaceAll("]", "");
         str = str.replaceAll(" ", "");
 
-        List<String> tmp = str.split(",");
-        List<int> ret = new List<int>();
-        for(String s in tmp) {
+        final List<String> tmp = str.split(",");
+        final List<int> ret = <int>[];
+        for(final String s in tmp) {
             //;
             try {
-                int i = int.parse(s);
+                final int i = int.parse(s);
                 //;
                 ret.add(i);
-            }catch(e) {
+            } on Exception {
                 //oh well. probably a bracket or a space or something
             }
         }
@@ -66,20 +68,20 @@ class JSONObject extends Object with MapMixin<String,String>{
     }
 
     static Set<String> jsonStringToStringSet(String str) {
-        if(str == null) return new Set<String>();
+        if(str == null) return <String>{};
         //print("str is $str");
         str = str.replaceAll("{", "");
         str = str.replaceAll("}", "");
         str = str.replaceAll(" ", "");
 
-        List<String> tmp = str.split(",");
-        Set<String> ret = new Set<String>();
-        for(String s in tmp) {
+        final List<String> tmp = str.split(",");
+        final Set<String> ret = <String>{};
+        for(final String s in tmp) {
             //print("s is $s");
             try {
                 //print("adding $i");
                 ret.add(s);
-            }catch(e) {
+            } on Exception {
                 //oh well. probably a bracket or a space or something
             }
         }
@@ -87,13 +89,13 @@ class JSONObject extends Object with MapMixin<String,String>{
     }
 
     static List<String> jsonStringToStringArray(String str) {
-        if(str == null) return new List<String>();
+        if(str == null) return <String>[];
         //;
         str = str.replaceAll("[", "");
         str = str.replaceAll("]", "");
         str = str.replaceAll(" ", "");
 
-        List<String> tmp = str.split(",");
+        final List<String> tmp = str.split(",");
         return tmp;
     }
 
@@ -104,7 +106,8 @@ class JSONObject extends Object with MapMixin<String,String>{
 
     @override
     String operator [](Object key) {
-        return json[key] as String;
+        final String obj = json[key];
+        return obj;
     }
 
     @override
@@ -122,6 +125,6 @@ class JSONObject extends Object with MapMixin<String,String>{
 
     @override
     String remove(Object key) {
-        json.remove(key);
+        return json.remove(key);
     }
 }

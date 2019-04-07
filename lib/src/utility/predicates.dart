@@ -1,18 +1,18 @@
 
 /// A function which takes an object, returns a bool.
 ///
-/// Technically a specialised [Transformer].
-typedef bool Predicate<T>(T object);
+/// Technically a specialised [Mapping].
+typedef Predicate<T> = bool Function(T object);
 /// A function which takes an object and returns nothing.
-typedef void Lambda<T>(T object);
+typedef Lambda<T> = void Function(T object);
 /// A function which takes an object and returns an object of another type.
-typedef U Transformer<T,U>(T object);
+typedef Mapping<T,U> = U Function(T object);
 /// A function which takes two objects and combines them into one.
-typedef T Combiner<T>(T first, T second);
+typedef Combiner<T> = T Function(T first, T second);
 /// A function which has no inputs and returns an object.
-typedef T Generator<T>();
+typedef Generator<T> = T Function();
 /// A function which has no inputs and returns nothing.
-typedef void Action();
+typedef Action = void Function();
 
 /// A two-type pair.
 class Tuple<T,U> {
@@ -23,5 +23,3 @@ class Tuple<T,U> {
     @override
     String toString() => "[$first, $second]";
 }
-
-typedef U Mapping<T,U>(T object);

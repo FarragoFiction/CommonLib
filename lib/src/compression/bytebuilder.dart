@@ -1,10 +1,10 @@
-import 'dart:typed_data';
 import 'dart:math';
+import 'dart:typed_data';
 
 /// Builds a compacted [ByteBuffer] of data with syntax similar to [StringBuffer].
 class ByteBuilder {
 	/// Internal buffer.
-	StringBuffer _data = new StringBuffer();
+	final StringBuffer _data = new StringBuffer();
 	/// Current working byte, bits are appended to this up to 8, then it is added to the buffer.
 	int _currentbyte = 0;
 	/// Bit position within the current working byte.
@@ -54,7 +54,7 @@ class ByteBuilder {
 	void appendExpGolomb(int i) {
 		i++;
 
-		int bits = log(i)~/ln2;
+		final int bits = log(i)~/ln2;
 
 		for (int i=0; i<bits; i++) {
 			this.appendBit(false);
@@ -65,7 +65,7 @@ class ByteBuilder {
 
 	/// Appends all numbers in [bits] to the buffer as [length] bit long segments.
 	void appendAllBits(List<int> bits, int length) {
-		for (int number in bits) {
+		for (final int number in bits) {
 			this.appendBits(number, length);
 		}
 	}
@@ -77,13 +77,13 @@ class ByteBuilder {
 
 	/// Appends all numbers in [numbers] using Exponential-Golomb encoding.
 	void appendAllExpGolomb(List<int> numbers) {
-		for (int number in numbers) {
+		for (final int number in numbers) {
 			this.appendExpGolomb(number);
 		}
 	}
 
 	/// Creates a new [ByteBuffer] containing the data in this ByteBuilder.
-	ByteBuffer toBuffer([ByteBuffer toExtend = null]) {
+	ByteBuffer toBuffer([ByteBuffer toExtend]) {
 		int length = _position > 0 ? _data.length+1 : _data.length;
 		int offset = 0;
 
@@ -94,16 +94,16 @@ class ByteBuilder {
 			offset = toExtend.lengthInBytes;
 		}
 
-		Uint8List list = new Uint8List(length);
+		final Uint8List list = new Uint8List(length);
 
 		if (toExtend != null) {
-			Uint8List view = new Uint8List.view(toExtend);
+			final Uint8List view = new Uint8List.view(toExtend);
 			for (int i=0; i<view.length; i++) {
 				list[i] = view[i];
 			}
 		}
 
-		String data = _data.toString();
+		final String data = _data.toString();
 
 		for (int i=0; i<data.length; i++) {
 			list[i+offset] = data.codeUnitAt(i);
@@ -117,9 +117,9 @@ class ByteBuilder {
 
 	/// Convenience function for pretty-printing a [ByteBuffer].
 	static void prettyPrintByteBuffer(ByteBuffer buffer) {
-		Uint8List list = new Uint8List.view(buffer);
+		final Uint8List list = new Uint8List.view(buffer);
 
-		StringBuffer sb = new StringBuffer("Bytes: ${buffer.lengthInBytes} [");
+		final StringBuffer sb = new StringBuffer("Bytes: ${buffer.lengthInBytes} [");
 
 		for (int i=0; i<list.length; i++) {
 			sb.write("0x${list[i].toRadixString(16).padLeft(2,"0").toUpperCase()}");
@@ -148,17 +148,17 @@ class ImprovedByteReader {
 
 	/// Internal method for reading a bit at a specific position. Use read for getting single bits from the buffer instead.
 	bool _read(int position) {
-		int bytepos = (position / 8.0).floor();
-		int bitpos = 7 - (position % 8);
+		final int bytepos = (position / 8.0).floor();
+		final int bitpos = 7 - (position % 8);
 
-		int byte = _bytes.getUint8(bytepos);
+		final int byte = _bytes.getUint8(bytepos);
 
 		return byte & (1 << bitpos) > 0;
 	}
 
 	/// Reads the next bit from the buffer.
 	bool readBit() {
-		bool val = this._read(this._position);
+		final bool val = this._read(this._position);
 		_position++;
 		return val;
 	}

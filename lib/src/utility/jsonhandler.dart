@@ -1,18 +1,18 @@
 import "package:CommonLib/Logging.dart";
 
 class JsonHandler {
-    static Logger _logger = new Logger("JsonHandler");
+    static final Logger _logger = new Logger("JsonHandler");
 
     Map<String, dynamic> data;
 
     JsonHandler(Map<String, dynamic> this.data);
 
-    T getValue<T>(String location, [T fallback = null]) {
-        List<String> tags = location.split(".");
+    T getValue<T>(String location, [T fallback]) {
+        final List<String> tags = location.split(".");
         dynamic object = data;
 
         for (int level = 0; level < tags.length; level++) {
-            String tag = tags[level];
+            final String tag = tags[level];
 
             if (object is Map) {
                 if (!object.containsKey(tag)) {
@@ -25,7 +25,7 @@ class JsonHandler {
                     object = object[tag];
                 }
             } else if (object is List) {
-                int pos = int.tryParse(tag) ?? -1;
+                final int pos = int.tryParse(tag) ?? -1;
                 if (pos < 0 || pos >= object.length) {
                     _logger.warn("Attempted to index list ${tags.getRange(0, level).join(".")} with invalid int or out of range: $tag, falling back.");
                     return fallback;
@@ -46,13 +46,13 @@ class JsonHandler {
 
     List<T> getArray<T>(String location) {
         // ignore: always_specify_types
-        var value = this.getValue(location);
+        final T value = this.getValue(location);
 
         if (value != null && value is List<dynamic>) {
-            List<T> list = <T>[];
+            final List<T> list = <T>[];
 
             // ignore: always_specify_types
-            for (var item in value) {
+            for (final dynamic item in value) {
                 if (item is T) {
                     list.add(item);
                 }
