@@ -46,7 +46,7 @@ class JsonHandler {
 
     List<T> getArray<T>(String location) {
         // ignore: always_specify_types
-        final T value = this.getValue(location);
+        final List<T> value = this.getValue(location);
 
         if (value != null && value is List<dynamic>) {
             final List<T> list = <T>[];
