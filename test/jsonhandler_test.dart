@@ -16,11 +16,11 @@ void main() {
 
         test("String.split() splits the string on the delimiter", () {
             const String string = "foo.bar.baz";
-            expect(string.split("."), equals(<String>["foo", "bWRONGar", "baz"]));
+            expect(string.split("."), equals(<String>["foo", "bar", "baz"]));
         });
 
         test("Lamia seadweller bodies ", () {
-            expect(seadwellerBodies, equals(<int>[9999999, 7, 8, 9, 12, 13, 27, 28, 29, 34, 35, 39, 40, 46, 50, 51, 52, 60, 61]));
+            expect(seadwellerBodies, equals(<int>[7, 8, 9, 12, 13, 27, 28, 29, 34, 35, 39, 40, 46, 50, 51, 52, 60, 61]));
         });
     });
 }
