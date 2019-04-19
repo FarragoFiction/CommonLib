@@ -45,20 +45,24 @@ class JsonHandler {
     }
 
     List<T> getArray<T>(String location) {
-        // ignore: always_specify_types
-        final List<T> value = this.getValue(location);
+        // ignore: always_specify_types, prefer_final_locals
+        var value = this.getValue(location);
 
-        if (value != null && value is List<dynamic>) {
-            final List<T> list = <T>[];
+        if (value != null) {
+            if (value is List<T>) {
+                return value;
+            } else if (value is List<dynamic>) {
+                final List<T> list = <T>[];
 
-            // ignore: always_specify_types
-            for (final dynamic item in value) {
-                if (item is T) {
-                    list.add(item);
+                // ignore: always_specify_types
+                for (final dynamic item in value) {
+                    if (item is T) {
+                        list.add(item);
+                    }
                 }
-            }
 
-            return list;
+                return list;
+            }
         }
         return null;
     }
