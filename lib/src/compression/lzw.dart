@@ -1,41 +1,43 @@
 library lzw;
 
-/// Compresses pixels using LZW.
-List<int> compress(List<int> pixels, int colorBits) {
-    final CodeBook book = new CodeBook(colorBits);
-    final CodeBuffer buf = new CodeBuffer(book);
+abstract class LZW {
+    /// Compresses pixels using LZW.
+    static List<int> compress(List<int> pixels, int colorBits) {
+        final LZWCodeBook book = new LZWCodeBook(colorBits);
+        final LZWCodeBuffer buf = new LZWCodeBuffer(book);
 
-    buf.add(book.clearCode);
-    if (pixels.isEmpty) {
+        buf.add(book.clearCode);
+        if (pixels.isEmpty) {
+            buf.add(book.endCode);
+            return buf.finish();
+        }
+
+        int code = pixels[0];
+        for (final int px in pixels.sublist(1)) {
+            final int newCode = book.codeAfterAppend(code, px);
+            if (newCode == null) {
+                buf.add(code);
+                book.define(code, px);
+                code = px;
+            } else {
+                code = newCode;
+            }
+        }
+        buf.add(code);
         buf.add(book.endCode);
         return buf.finish();
     }
 
-    int code = pixels[0];
-    for (final int px in pixels.sublist(1)) {
-        final int newCode = book.codeAfterAppend(code, px);
-        if (newCode == null) {
-            buf.add(code);
-            book.define(code, px);
-            code = px;
-        } else {
-            code = newCode;
-        }
-    }
-    buf.add(code);
-    buf.add(book.endCode);
-    return buf.finish();
+    // The highest code that can be defined in the CodeBook.
+    static const int maxCode = (1 << 12) - 1;
 }
-
-// The highest code that can be defined in the CodeBook.
-const int maxCode = (1 << 12) - 1;
 
 /// A CodeBook contains codes defined during LZW compression. It's a mapping from a string
 /// of pixels to the code that represents it. The codes are stored in a trie which is
 /// represented as a map. Codes may be up to 12 bits. The size of the codebook is always
 /// the minimum power of 2 needed to represent all the codes and automatically increases
 /// as new codes are defined.
-class CodeBook {
+class LZWCodeBook {
     int colorBits;
     // The "clear" code which resets the table.
     int clearCode;
@@ -58,7 +60,7 @@ class CodeBook {
     // The current size of the codebook.
     int size;
 
-    CodeBook(this.colorBits) {
+    LZWCodeBook(this.colorBits) {
         if (colorBits < 2) {
             colorBits = 2;
         }
@@ -84,7 +86,7 @@ class CodeBook {
     /// Defines a new code to be the pixel string of a previous code with one pixel appended.
     /// Returns true if defined, or false if there's no more room in the table.
     bool define(int code, int pixelIndex) {
-        if (nextUnused == maxCode) {
+        if (nextUnused == LZW.maxCode) {
             return false;
         }
         _codeAfterAppend[(code << 8) | pixelIndex] = nextUnused++;
@@ -97,15 +99,15 @@ class CodeBook {
 }
 
 /// Writes a sequence of integers using a variable number of bits, for LZW compression.
-class CodeBuffer {
-    final CodeBook book;
+class LZWCodeBuffer {
+    final LZWCodeBook book;
     final List<int> finishedBytes = <int>[];
     // A buffer containing bits not yet added to finishedBytes.
     int buf = 0;
     // Number of bits in the buffer.
     int bits = 0;
 
-    CodeBuffer(this.book);
+    LZWCodeBuffer(this.book);
 
     void add(int code) {
         assert(code >= 0 && code < book.size);
