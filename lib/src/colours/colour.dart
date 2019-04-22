@@ -233,6 +233,10 @@ class Colour {
         return (red << 16) | (green << 8) | blue;
     }
 
+    int toImageDataInt32() {
+        return (alpha << 24) | (blue << 16) | (green << 8) | red;
+    }
+
     String toHexString([bool useAlpha = false]) {
         return this.toHex(useAlpha).toRadixString(16).padLeft(useAlpha ? 8 : 6, "0").toUpperCase();
     }
