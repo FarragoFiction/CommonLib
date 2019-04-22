@@ -10,13 +10,19 @@ class ByteBuilder {
 	/// Bit position within the current working byte.
 	int _position = 0;
 
+	bool bigEndian = true;
+
 	/// Creates a new ByteBuilder with an empty buffer.
 	ByteBuilder();
 
 	/// Appends a single bit to the buffer.
 	void appendBit(bool bit) {
 		if (bit) {
-			_currentbyte |= (1 << (7-_position));
+			if (bigEndian) {
+				_currentbyte |= (1 << (7 - _position));
+			} else {
+				_currentbyte |= (1 << _position);
+			}
 		}
 		_position++;
 		if (_position >= 8) {
@@ -29,7 +35,11 @@ class ByteBuilder {
 	/// Appends [length] bits of [bits] to the buffer.
 	void appendBits(int bits, int length) {
 		for (int i=0; i<length; i++) {
-			appendBit(bits & (1 << ((length-1)-i)) > 0);
+			if (bigEndian) {
+				appendBit(bits & (1 << ((length - 1) - i)) > 0);
+			} else {
+				appendBit(bits & (1 << i) > 0);
+			}
 		}
 	}
 
