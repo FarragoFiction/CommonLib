@@ -79,7 +79,7 @@ class Logger {
 
     /// For development
     void debug(Object arg) {
-        if ((!(0.0 is int)) && this.printDebug) {
+        if (this.printDebug) {
             this.log(LogLevel.debug, arg);
         }
     }
