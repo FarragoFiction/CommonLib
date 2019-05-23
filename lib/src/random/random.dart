@@ -7,7 +7,7 @@ import "../collection/weighted_lists.dart";
 class Random implements Math.Random {
 	Math.Random _impl;
 	/// used for spawning a new random from this one without new stuff
-	int _echo;
+	int _echo = 0;
 
 	Random([int seed]) {
 		this.setSeed(seed);
@@ -51,7 +51,11 @@ class Random implements Math.Random {
 
 	void setSeed(int seed) {
 		this._impl = new Math.Random(seed);
-		if(seed != null)_echo = seed + 1;
+		if(seed != null) {
+			_echo = seed + 1;
+		} else {
+			_echo = 0;
+		}
 	}
 
 	int nextIntRange(int min, int max) => this.nextInt(1+max-min) + min;
