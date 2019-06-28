@@ -1,0 +1,40 @@
+targets:
+  $default:
+    builders:
+      build_web_compilers|entrypoint:
+        generate_for:
+          exclude:
+            - "**.worker.dart"
+
+builders:
+  worker_builder:
+    import: "package:build_web_compilers/builders.dart"
+    builder_factories:
+      - webEntrypointBuilder
+    build_extensions:
+      .dart:
+        - .dart.bootstrap.js
+        - .dart.js
+        - .dart.js.map
+        - .dart.js.tar.gz
+        - .digests
+    required_inputs:
+      - .dart
+      - .ddc.js
+      - .ddc.module
+      - .dart2js.module
+    build_to: cache
+    auto_apply: root_package
+    defaults:
+      generate_for:
+        include:
+          - web/**.worker.dart
+          - example/**.worker.dart
+          - benchmark/**.worker.dart
+      options:
+        compiler: dart2js
+      release_options:
+        dart2js_args:
+          - -O4
+    applies_builders:
+      - build_web_compilers|dart2js_archive_extractor
