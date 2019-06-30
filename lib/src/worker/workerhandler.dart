@@ -32,7 +32,13 @@ class WorkerHandler {
         return listener;
     }
 
-
+    void sendMessage(String label, dynamic payload) {
+        final Map<String, dynamic> data = <String, dynamic>{
+            "label": label,
+            "payload": payload
+        };
+        _worker.postMessage(data);
+    }
 }
 
 /// Path should be the file name of the dart worker file
