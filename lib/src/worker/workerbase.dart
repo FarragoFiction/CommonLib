@@ -25,20 +25,23 @@ abstract class WorkerBase {
 
                 dynamic processedPayload;
                 dynamic error;
+                dynamic trace;
 
                 try {
                     processedPayload = await handleCommand(command, payload);
                 }
                 // ignore: avoid_catches_without_on_clauses
-                catch(e) {
+                catch(e,t) {
                     error = e;
+                    trace = t;
                 }
 
                 final Map<String,dynamic> reply = <String,dynamic>{
                     "id": id
                 };
                 if (error != null) {
-                    reply["error"] = error;
+                    reply["error"] = error.toString();
+                    reply["trace"] = trace.toString();
                 }
                 else if (processedPayload != null) {
                     reply["payload"] = processedPayload;

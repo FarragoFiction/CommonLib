@@ -1,16 +1,18 @@
 import "dart:async";
 import "dart:html";
 
+import "package:CommonLib/Workers.dart";
 
 Element output = querySelector('#output');
 Future<void> main() async {
     print("worker test!");
-    final Worker worker = new Worker("worker.worker.dart.js");
-    //final Worker worker = new Worker("jsworker.js");
 
-    final MessageChannel channel = new MessageChannel();
+    final WorkerHandler worker = createWebWorker("worker.worker.dart");
 
-    worker.postMessage(<String,dynamic>{"port": channel.port1}, <Object>[channel.port1]);
-
-    channel.port2.onMessage.listen((MessageEvent e) => print("message: ${e.data}"));
+    try {
+        await worker.sendCommand("error");
+    } on WorkerException catch (e, trace) {
+        print("returnd error: $e");
+        print(trace);
+    }
 }

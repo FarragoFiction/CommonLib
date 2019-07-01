@@ -24,10 +24,10 @@ class WorkerHandler {
             if (_pending.containsKey(id)) {
                 final Completer<dynamic> completer = _pending[id];
 
-                if (data.containsKey("payload")) {
+                if (data.containsKey("error")) {
+                    completer.completeError(new WorkerException(data["error"]), new StackTrace.fromString(data["trace"]));
+                } else if (data.containsKey("payload")) {
                     completer.complete(data["payload"]);
-                } else if (data.containsKey("error")) {
-                    completer.completeError(data["error"]);
                 } else {
                     completer.complete(null);
                 }
@@ -71,4 +71,12 @@ WorkerHandler createWebWorker(String path) {
     final Worker worker = new Worker("$path.js");
 
     return new WorkerHandler._(worker);
+}
+
+class WorkerException implements Exception {
+    String message;
+    WorkerException(String this.message);
+
+    @override
+    String toString() => "WorkerException: $message";
 }

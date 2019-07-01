@@ -1,21 +1,20 @@
 import 'dart:html';
 
+import "package:CommonLib/Workers.dart";
+
 void main() {
     new ExampleWorker();
 }
 
-class ExampleWorker {
-    DedicatedWorkerGlobalScope scope = DedicatedWorkerGlobalScope.instance;
+class ExampleWorker extends WorkerBase {
 
-    ExampleWorker() {
-        print("work work");
+    @override
+    Future<void> handleCommand(String command, dynamic payload) async {
 
-        scope.onMessage.listen((MessageEvent e){
-            print(e.data);
-            print(e.data.runtimeType);
-            MessagePort port = e.data["port"];
-            print(port);
-            port.postMessage("port working");
-        });
+        if (command == "error") {
+            throw Exception("ANGERY");
+        }
+
+        return;
     }
 }
