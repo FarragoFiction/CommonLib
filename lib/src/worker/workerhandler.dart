@@ -4,6 +4,12 @@ import "dart:html";
 /// Provides an interface for a web worker with a main class based on WorkerBase
 /// Instantiate a worker and handler with createWebWorker
 class WorkerHandler {
+    static const String idLabel = "id";
+    static const String payloadLabel = "payload";
+    static const String errorLabel = "error";
+    static const String traceLabel = "trace";
+    static const String commandLabel = "command";
+
     final Worker _worker;
     Stream<Event> onError;
 
@@ -18,16 +24,16 @@ class WorkerHandler {
     void _handleMessage(MessageEvent event) {
         if (!(event.data is Map)) { return; }
         final Map<dynamic,dynamic> data = event.data;
-        if (data.containsKey("id")) {
-            final int id = data["id"];
+        if (data.containsKey(idLabel)) {
+            final int id = data[idLabel];
 
             if (_pending.containsKey(id)) {
                 final Completer<dynamic> completer = _pending[id];
 
-                if (data.containsKey("error")) {
-                    completer.completeError(new WorkerException(data["error"]), new StackTrace.fromString(data["trace"]));
-                } else if (data.containsKey("payload")) {
-                    completer.complete(data["payload"]);
+                if (data.containsKey(errorLabel)) {
+                    completer.completeError(new WorkerException(data[errorLabel]), new StackTrace.fromString(data[traceLabel]));
+                } else if (data.containsKey(payloadLabel)) {
+                    completer.complete(data[payloadLabel]);
                 } else {
                     completer.complete(null);
                 }
@@ -40,7 +46,7 @@ class WorkerHandler {
         Completer<T> completer;
 
         final Map<String,dynamic> data = <String,dynamic>{
-            "command": command,
+            commandLabel: command,
         };
 
         if (expectReply) {
@@ -49,11 +55,11 @@ class WorkerHandler {
             _commandId++;
 
             _pending[id] = completer;
-            data["id"] = id;
+            data[idLabel] = id;
         }
 
         if (payload != null) {
-            data["payload"] = payload;
+            data[payloadLabel] = payload;
         }
 
         _worker.postMessage(data);

@@ -1,5 +1,7 @@
 import "dart:html";
 
+import "workerhandler.dart";
+
 /// Base class for web worker main classes
 /// Extend this in the worker to automatically handle handshake and message passing
 abstract class WorkerBase {
@@ -12,16 +14,16 @@ abstract class WorkerBase {
     Future<void> _handleMessage(MessageEvent event) async {
         if (!(event.data is Map)) { return; }
         final Map<dynamic,dynamic> data = event.data;
-        if (data.containsKey("command")) {
-            final String command = data["command"];
+        if (data.containsKey(WorkerHandler.commandLabel)) {
+            final String command = data[WorkerHandler.commandLabel];
 
             dynamic payload;
-            if (data.containsKey("payload")) {
-                payload = data["payload"];
+            if (data.containsKey(WorkerHandler.payloadLabel)) {
+                payload = data[WorkerHandler.payloadLabel];
             }
 
-            if (data.containsKey("id")) {
-                final int id = data["id"];
+            if (data.containsKey(WorkerHandler.idLabel)) {
+                final int id = data[WorkerHandler.idLabel];
 
                 dynamic processedPayload;
                 dynamic error;
@@ -37,14 +39,14 @@ abstract class WorkerBase {
                 }
 
                 final Map<String,dynamic> reply = <String,dynamic>{
-                    "id": id
+                    WorkerHandler.idLabel: id
                 };
                 if (error != null) {
-                    reply["error"] = error.toString();
-                    reply["trace"] = trace.toString();
+                    reply[WorkerHandler.errorLabel] = error.toString();
+                    reply[WorkerHandler.traceLabel] = trace.toString();
                 }
                 else if (processedPayload != null) {
-                    reply["payload"] = processedPayload;
+                    reply[WorkerHandler.payloadLabel] = processedPayload;
                 }
 
                 workerContext.postMessage(reply);
