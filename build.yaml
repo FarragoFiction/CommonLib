@@ -5,6 +5,8 @@ targets:
         generate_for:
           exclude:
             - "**.worker.dart"
+      CommonLib|worker_builder:
+        enabled: true
 
 builders:
   worker_builder:
@@ -26,6 +28,7 @@ builders:
     build_to: cache
     auto_apply: root_package
     defaults:
+      enabled: true
       generate_for:
         include:
           - web/**.worker.dart
