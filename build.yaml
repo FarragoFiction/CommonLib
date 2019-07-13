@@ -28,7 +28,6 @@ builders:
     build_to: cache
     auto_apply: root_package
     defaults:
-      enabled: true
       generate_for:
         include:
           - web/**.worker.dart
