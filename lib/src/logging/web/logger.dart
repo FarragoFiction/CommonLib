@@ -5,7 +5,7 @@ import "../logger.dart";
 /// Logger implementation, Web edition
 class LoggerImpl extends Logger {
 
-    LoggerImpl.create(String name, [bool debug = true]) : super.create(name, debug);
+    LoggerImpl.create(String name, [bool debug = false]) : super.create(name, debug);
 
     @override
     LoggerPrintFunction getPrintForLevel(LogLevel level) {
