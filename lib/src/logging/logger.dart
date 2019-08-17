@@ -1,4 +1,5 @@
-import 'dart:html';
+import "web/logger.dart"
+    if (dart.library.io) "vm/logger.dart";
 
 enum LogLevel {
     error,
@@ -11,7 +12,7 @@ enum LogLevel {
 /// Template for methods which print stuff
 typedef LoggerPrintFunction = void Function(Object arg);
 
-class Logger {
+abstract class Logger {
     /// Whether .verbose messages should be shown at all.
     static bool printVerbose = false;
 
@@ -25,11 +26,16 @@ class Logger {
     /// Section name displayed in output.
     final String name;
 
+    /// Gets the right logger implementation for side
+    factory Logger(String name, [bool debug = true]) {
+        return new LoggerImpl.create(name, debug);
+    }
+
     /// A simple logger for controlling console output.
     ///
     /// printDebug specifies whether this logger prints .debug messages.
     /// Debug messages are never printed in compiled js.
-    Logger(String this.name, [bool this.printDebug = false]);
+    Logger.create(String this.name, [bool this.printDebug = false]);
 
     /// Convenience method for getting a logger.
     factory Logger.get(String name, [bool debug = true]) {
@@ -42,17 +48,12 @@ class Logger {
     }
 
     /// Gets the console method for a LogLevel
-    static LoggerPrintFunction _getPrintForLevel(LogLevel level) {
-        if (level == LogLevel.error) { return window.console.error; }
-        if (level == LogLevel.warn) { return window.console.warn; }
-        if (level == LogLevel.verbose) { return window.console.info; }
-        return print;
-    }
+    LoggerPrintFunction getPrintForLevel(LogLevel level);
 
     /// Prefer one of the level specific methods
     void log(LogLevel level, Object arg) {
         if (disabled) { return; }
-        _getPrintForLevel(level)(_format(level, arg));
+        getPrintForLevel(level)(_format(level, arg));
     }
 
     /// NOW YOU FUCKED UP
