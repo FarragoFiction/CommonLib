@@ -27,7 +27,7 @@ abstract class Logger {
     final String name;
 
     /// Gets the right logger implementation for side
-    factory Logger(String name, [bool debug = true]) {
+    factory Logger(String name, [bool debug = false]) {
         return new LoggerImpl.create(name, debug);
     }
 
