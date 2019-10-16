@@ -8,6 +8,11 @@ String simulatedParamsGlobalVar = "";
 
 //just loads the navbar.text into the appropriate div.
 void loadNavbar() {
+    handleVoid();
+    HttpRequest.getString(PathUtils.adjusted("navbar.txt")).then(onNavbarLoaded);
+}
+
+void handleVoid() {
     if(getParameterByName("seerOfVoid",null)!= null) {
         /*
           need to have css that looks like:
@@ -23,7 +28,6 @@ void loadNavbar() {
             html.setAttribute(tag, "void");
         }
     };
-    HttpRequest.getString(PathUtils.adjusted("navbar.txt")).then(onNavbarLoaded);
 }
 
 void onNavbarLoaded(String data) {
