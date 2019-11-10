@@ -10,7 +10,7 @@ class WorkerHandler {
     static const String traceLabel = "trace";
     static const String commandLabel = "command";
 
-    final Worker _worker;
+    Worker _worker;
     Stream<Event> onError;
 
     final Map<int, Completer<dynamic>> _pending = <int, Completer<dynamic>>{};
@@ -43,6 +43,10 @@ class WorkerHandler {
     }
 
     Future<T> sendCommand<T>(String command, {dynamic payload, bool expectReply = true}) async {
+        if (_worker == null) {
+            throw new WorkerException("Worker is null");
+        }
+
         Completer<T> completer;
 
         final Map<String,dynamic> data = <String,dynamic>{
@@ -70,6 +74,14 @@ class WorkerHandler {
     }
 
     void sendInstantCommand(String command, [dynamic payload]) => sendCommand(command, payload: payload, expectReply: false);
+
+    void destroyWorker() {
+        if (_worker == null) {
+            throw new WorkerException("Worker is null");
+        }
+        _worker.terminate();
+        _worker = null;
+    }
 }
 
 /// Path should be the file name of the dart worker file
