@@ -8,7 +8,26 @@ String simulatedParamsGlobalVar = "";
 
 //just loads the navbar.text into the appropriate div.
 void loadNavbar() {
+    handleVoid();
     HttpRequest.getString(PathUtils.adjusted("navbar.txt")).then(onNavbarLoaded);
+}
+
+void handleVoid() {
+    if(getParameterByName("seerOfVoid",null)!= null) {
+        /*
+          need to have css that looks like:
+          html:not([data-seerOf=void]) .void {
+            display:none;
+          }
+         */
+        Element html = document.documentElement;
+        const String tag = "data-seerOf";
+        if (html.getAttribute(tag) == "void") {
+            html.removeAttribute(tag);
+        } else {
+            html.setAttribute(tag, "void");
+        }
+    };
 }
 
 void onNavbarLoaded(String data) {
