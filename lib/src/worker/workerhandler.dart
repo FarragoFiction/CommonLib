@@ -1,6 +1,8 @@
 import "dart:async";
 import "dart:html";
 
+import "../utility/path_utils.dart";
+
 /// Provides an interface for a web worker with a main class based on WorkerBase
 /// Instantiate a worker and handler with createWebWorker
 class WorkerHandler {
@@ -86,7 +88,7 @@ class WorkerHandler {
 
 /// Path should be the file name of the dart worker file
 WorkerHandler createWebWorker(String path) {
-    final Worker worker = new Worker("$path.js");
+    final Worker worker = new Worker("${PathUtils.resolve(path)}.js");
 
     return new WorkerHandler._(worker);
 }

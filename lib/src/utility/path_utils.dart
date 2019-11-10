@@ -3,6 +3,7 @@ import 'dart:math' as Math;
 import 'package:CommonLib/src/logging/logger.dart';
 
 abstract class PathUtils {
+    static final RegExp _protocol = new RegExp(r"\w+:\/\/");
     static const String _tagName = "rootdepth";
     static Logger logger = Logger.get("Path Utils", false);
 
@@ -60,6 +61,7 @@ abstract class PathUtils {
         return -1;
     }
 
+    /// Corrects the provided path leading ../ count based on page root depth
     static String adjusted(String path) {
         return "${"../" * getPathDepth()}$path";
     }
@@ -70,5 +72,26 @@ abstract class PathUtils {
             _pathdepth[path] = getSubDirectoryCount(path);
         }
         return _pathdepth[path];
+    }
+
+    /// Does the same as [adjusted] but also resolves package: directives and absolute paths
+    static String resolve(String path, {bool absoluteRoot = false}) {
+        if (path.startsWith(_protocol)) { // if this is a whole-ass URL just let it go direct
+            return path;
+        }
+
+        // resolve package based urls... this isn't strictly necessary but it's nice
+        if (path.startsWith("package:")) {
+            path = "/packages/${path.substring(8)}";
+        } else if (path.startsWith("/")) { // treat leading slashes as absolute root anyway
+            absoluteRoot = true;
+            path = path.substring(1);
+        }
+
+        if (absoluteRoot) {
+            final String absPath = "${window.location.protocol}//${window.location.host}/$path";
+            return absPath;
+        }
+        return adjusted(path);
     }
 }
