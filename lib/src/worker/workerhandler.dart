@@ -83,6 +83,10 @@ class WorkerHandler {
         }
         _worker.terminate();
         _worker = null;
+
+        for (final Completer<dynamic> completer in _pending.values) {
+            completer.completeError(new WorkerException("Worker was terminated"));
+        }
     }
 }
 
