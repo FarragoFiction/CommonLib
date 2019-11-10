@@ -33,6 +33,7 @@ builders:
           - web/**.worker.dart
           - example/**.worker.dart
           - benchmark/**.worker.dart
+          - lib/**.worker.dart
       options:
         compiler: dart2js
       release_options:
