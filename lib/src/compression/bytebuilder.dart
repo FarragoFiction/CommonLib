@@ -195,8 +195,8 @@ class ByteReader {
 	}
 
 	/// Reads the next [byteCount] bytes to a List.
-	List<int> readBytes(int byteCount) {
-		final List<int> output = new List<int>(byteCount);
+	Uint8List readBytes(int byteCount) {
+		final Uint8List output = new Uint8List(byteCount);
 
 		for (int i=0; i<byteCount; i++) {
 			output[i] = readByte();
