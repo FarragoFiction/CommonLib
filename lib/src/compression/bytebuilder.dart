@@ -145,14 +145,14 @@ class ByteBuilder {
 }
 
 /// Reads a [ByteBuffer] as a stream of bits.
-class ImprovedByteReader {
+class ByteReader {
 	/// Source buffer.
 	ByteData _bytes;
 	/// Current bit position within the buffer.
 	int _position = 0;
 
 	/// Creates a new ByteReader reading from [bytes]. The start position will be offset by [offset] bytes.
-	ImprovedByteReader(ByteBuffer bytes, [int offset = 0]) {
+	ByteReader(ByteBuffer bytes, [int offset = 0]) {
 		this._bytes = bytes.asByteData(offset);
 	}
 
@@ -192,6 +192,17 @@ class ImprovedByteReader {
 	/// Reads the next 8 bits from the buffer.
 	int readByte() {
 		return readBits(8);
+	}
+
+	/// Reads the next [byteCount] bytes to a List.
+	List<int> readBytes(int byteCount) {
+		final List<int> output = new List<int>(byteCount);
+
+		for (int i=0; i<byteCount; i++) {
+			output[i] = readByte();
+		}
+
+		return output;
 	}
 
 	/// Reads the next 16 bits from the buffer.
