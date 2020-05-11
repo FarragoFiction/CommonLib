@@ -11,7 +11,7 @@ import 'package:source_span/source_span.dart';
 import "package:stack_trace/stack_trace.dart";
 import "package:source_map_stack_trace/source_map_stack_trace.dart";
 import "package:source_maps/source_maps.dart" as SourceMaps;
-import "package:package_resolver/package_resolver.dart";
+//import "package:package_resolver/package_resolver.dart";
 
 @JS("Tracer")
 class JSTracer {
@@ -89,11 +89,11 @@ class Tracer {
 
         getMappingForCurrentScript((SourceMaps.Mapping mapping) {
             if (mapping != null) {
-                if (packageRoot == null) {
+                //if (packageRoot == null) {
                     trace = mapStackTrace(mapping, trace);
-                } else {
-                    trace = mapStackTrace(mapping, trace, packageResolver: new SyncPackageResolver.root(packageRoot));
-                }
+                //} else {
+                //    trace = mapStackTrace(mapping, trace, packageResolver: new SyncPackageResolver.root(packageRoot));
+                //}
             }
             writeTraceToPage(trace, container);
         });
