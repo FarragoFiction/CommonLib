@@ -7,9 +7,10 @@ String simulatedParamsGlobalVar = "";
 
 
 //just loads the navbar.text into the appropriate div.
-void loadNavbar() {
+Future<void> loadNavbar() async {
     handleVoid();
-    HttpRequest.getString(PathUtils.adjusted("navbar.txt")).then(onNavbarLoaded);
+    final String html = await HttpRequest.getString(PathUtils.adjusted("navbar.txt"));
+    onNavbarLoaded(html);
 }
 
 void handleVoid() {
