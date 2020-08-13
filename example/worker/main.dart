@@ -12,7 +12,7 @@ Future<void> main() async {
     try {
         await worker.sendCommand("error");
     } on WorkerException catch (e, trace) {
-        print("returnd error: $e");
+        print("returned error: $e");
         print(trace);
     }
 }
