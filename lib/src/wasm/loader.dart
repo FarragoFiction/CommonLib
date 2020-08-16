@@ -124,9 +124,6 @@ abstract class WasmLoader {
             exports[key] = value;
         }
         final WebAssembly.Memory memory = exports["memory"];
-        final Uint32List U32 = memory.buffer.asUint32List();
-        final Uint16List U16 = memory.buffer.asUint16List();
-
         final WebAssembly.Table table = exports["table"];
         final Function alloc = exports["__alloc"];
         final Function retain = exports["__retain"];
@@ -134,6 +131,7 @@ abstract class WasmLoader {
 
         /// Gets the runtime type info for the given id.
         int getInfo(int id) {
+            final Uint32List U32 = memory.buffer.asUint32List();
             final int count = U32[rttiBase >> 2];
             if (id >= count) {
                 throw Exception("Invalid id: $id");
@@ -152,6 +150,7 @@ abstract class WasmLoader {
 
         /// Gets the runtime base id for the given id.
         int getBase(int id) {
+            final Uint32List U32 = memory.buffer.asUint32List();
             final int count = U32[rttiBase >> 2];
             if (id >= count) {
                 throw Exception("Invalid id: $id");
@@ -166,6 +165,7 @@ abstract class WasmLoader {
 
         /// Allocates a new string in the module's memory and returns its retained pointer.
         int __allocString(String string) {
+            final Uint16List U16 = memory.buffer.asUint16List();
             final int length = string.length;
             final int ptr = alloc(length << 1, STRING_ID);
             final int p = ptr >> 1;
@@ -178,6 +178,7 @@ abstract class WasmLoader {
 
         /// Reads a string from the module's memory by its pointer.
         String __getString(int ptr) {
+            final Uint32List U32 = memory.buffer.asUint32List();
             final int id = U32[ptr + ID_OFFSET >> 2];
             if (id != STRING_ID) {
                 throw Exception("Not a string: $ptr");
@@ -217,6 +218,7 @@ abstract class WasmLoader {
                 result = buf;
             } else {
                 final int arr = alloc(info & ARRAY != 0 ? ARRAY_SIZE : ARRAYBUFFERVIEW_SIZE, id);
+                final Uint32List U32 = memory.buffer.asUint32List();
                 U32[arr + ARRAYBUFFERVIEW_BUFFER_OFFSET >> 2] = retain(buf);
                 U32[arr + ARRAYBUFFERVIEW_DATASTART_OFFSET >> 2] = buf;
                 U32[arr + ARRAYBUFFERVIEW_DATALENGTH_OFFSET >> 2] = length << align;
@@ -239,6 +241,7 @@ abstract class WasmLoader {
 
         /// Gets a live view on an array's values in the module's memory. Infers the array type from RTTI.
         List<num> __getArrayView(int arr) {
+            final Uint32List U32 = memory.buffer.asUint32List();
             final int id = U32[arr + ID_OFFSET >> 2];
             final int info = getArrayInfo(id);
             final int align = getValueAlign(info);
@@ -268,6 +271,8 @@ abstract class WasmLoader {
 
         /// Gets a live view on a typed array's values in the module's memory.
         T getTypedArrayView<T extends List<num>>(_TypedListInfo<T> info, int ptr) {
+            final Uint32List U32 = memory.buffer.asUint32List();
+            print("memory length: ${memory.buffer.lengthInBytes}, U32 length: ${U32.length}");
             final int bufPtr = U32[ptr + ARRAYBUFFERVIEW_DATASTART_OFFSET >> 2];
             return info.newList(memory.buffer, bufPtr, U32[bufPtr + SIZE_OFFSET >>2] >> info.align);
         }
@@ -325,6 +330,7 @@ abstract class WasmLoader {
 
         /// Tests whether an object is an instance of the class represented by the specified base id.
         bool __instanceOf(int ptr, int baseId) {
+            final Uint32List U32 = memory.buffer.asUint32List();
             int id = U32[ptr + ID_OFFSET >> 2];
             if (id <= U32[rttiBase >> 2]) {
                 do {

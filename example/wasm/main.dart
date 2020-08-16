@@ -12,12 +12,13 @@ Future<void> main() async {
     print(module.exports);
     print(module.exports["add"](1,2));
 
-    final List<int> testNumbers = <int>[1,2,3,4,5,6,7,8,9];
+    //final List<int> testNumbers = <int>[1,2,3,4,5,6,7,8,9];
+    final List<int> testNumbers = new List<int>.generate(200000, (int i) => i+1);
     final W.Exports e = module.exports;
 
-    final int arrayPtr = e.retain(e.allocArray(e.global("Int32Array_ID"), testNumbers));
+    final int arrayPtr = e.retain(e.allocArray(e.global("Uint32Array_ID"), testNumbers));
     final int resultPointer = e["test"](arrayPtr);
-    final Int32List result = e.getInt32List(resultPointer);
+    final Uint32List result = e.getUint32List(resultPointer);
     e.release(arrayPtr);
     e.release(resultPointer);
 
