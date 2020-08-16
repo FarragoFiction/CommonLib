@@ -120,7 +120,6 @@ abstract class WasmLoader {
         final Map<String,dynamic> exports = <String,dynamic>{};
         for(final String key in objectKeys(instance.exports)) {
             final Object value = getProperty(instance.exports, key);
-            print("$key: $value");
             exports[key] = value;
         }
         final WebAssembly.Memory memory = exports["memory"];
@@ -272,7 +271,6 @@ abstract class WasmLoader {
         /// Gets a live view on a typed array's values in the module's memory.
         T getTypedArrayView<T extends List<num>>(_TypedListInfo<T> info, int ptr) {
             final Uint32List U32 = memory.buffer.asUint32List();
-            print("memory length: ${memory.buffer.lengthInBytes}, U32 length: ${U32.length}");
             final int bufPtr = U32[ptr + ARRAYBUFFERVIEW_DATASTART_OFFSET >> 2];
             return info.newList(memory.buffer, bufPtr, U32[bufPtr + SIZE_OFFSET >>2] >> info.align);
         }
@@ -437,16 +435,16 @@ abstract class WasmLoader {
             } else {
                 if (name.startsWith(getSet)) {
                     //TODO: getset stuff
-                    print("$name is a get/set");
+                    //print("$name is a get/set");
                     //TODO: function wrapping
                 } else if (elem is Function) {
-                    print("$name is a function");
+                    //print("$name is a function");
                     _injectWrapperFunction();
                     curr[name] = _wrap(elem, allowInterop(setArgumentsLength));
                 } else {
                     //print("$name is something else");
                     curr[name] = elem;
-                    print(elem.runtimeType);
+                    //print(elem.runtimeType);
                     //js.context["console"].callMethod("log", <dynamic>[elem]);
                 }
             }
