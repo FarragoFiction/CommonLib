@@ -2,6 +2,7 @@
 library WASM;
 
 import "dart:async";
+import "dart:collection";
 import "dart:html";
 import "dart:js" as js;
 import "dart:math" as Math;
@@ -354,7 +355,7 @@ abstract class WasmLoader {
     }
 
     /// Asynchronously instantiates an AssemblyScript module from anything that can be instantiated.
-    static Future<WebAssemblyInfo> instantiate(dynamic source, [Map<String,dynamic> imports]) async {
+    static Future<Program> instantiate(dynamic source, [Map<String,dynamic> imports]) async {
         imports ??= <String,dynamic>{};
     
         source = await source;
@@ -367,11 +368,11 @@ abstract class WasmLoader {
         final WebAssembly.Instance instance = new WebAssembly.Instance(module, jsify(imports));
         final Map<String,dynamic> exports = postInstantiate(extended, instance);
         
-        return new WebAssemblyInfo(module, instance, exports);
+        return new Program(module, instance, exports);
     }
 
     /// Synchronously instantiates an AssemblyScript module from a WebAssembly.Module or binary buffer.
-    static WebAssemblyInfo instantiateSync(dynamic source, [Map<String,dynamic> imports]) {
+    static Program instantiateSync(dynamic source, [Map<String,dynamic> imports]) {
         imports ??= <String, dynamic>{};
 
         final WebAssembly.Module module = isModule(source) ? source : new WebAssembly.Module(source);
@@ -379,11 +380,11 @@ abstract class WasmLoader {
         final WebAssembly.Instance instance = new WebAssembly.Instance(module, jsify(imports));
         final Map<String,dynamic> exports = postInstantiate(extended, instance);
 
-        return new WebAssemblyInfo(module, instance, exports);
+        return new Program(module, instance, exports);
     }
 
     /// Asynchronously instantiates an AssemblyScript module from a response, i.e. as obtained by `fetch`.
-    static Future<WebAssemblyInfo> instantiateStreaming(dynamic source, [Map<String,dynamic> imports]) async {
+    static Future<Program> instantiateStreaming(dynamic source, [Map<String,dynamic> imports]) async {
         imports ??= <String, dynamic>{};
         if (WebAssembly.instantiateStreaming == null) {
             source = await source;
@@ -393,7 +394,7 @@ abstract class WasmLoader {
         final WebAssembly.ResultObject result = await promiseToFuture(WebAssembly.instantiateStreaming(source, jsify(imports)));
         final Map<String,dynamic> exports = postInstantiate(extended, result.instance);
 
-        return new WebAssemblyInfo(result.module, result.instance, exports);
+        return new Program(result.module, result.instance, exports);
     }
 
     static Map<String,dynamic> demangle(Map<String,dynamic> exports, [Map<String,dynamic> extendedExports]) {
@@ -449,12 +450,94 @@ abstract class WasmLoader {
     }
 }
 
-class WebAssemblyInfo {
-    WebAssembly.Module module;
-    WebAssembly.Instance instance;
-    Map<String,dynamic> exports;
+class Program {
+    final WebAssembly.Module module;
+    final WebAssembly.Instance instance;
+    final Map<String,dynamic> exportMap;
+    final Exports exports;
 
-    WebAssemblyInfo(WebAssembly.Module this.module, WebAssembly.Instance this.instance, Map<String,dynamic> this.exports);
+    Program(WebAssembly.Module this.module, WebAssembly.Instance this.instance, Map<String,dynamic> this.exportMap) : this.exports = new Exports._(exportMap);
+}
+
+class Exports extends MapView<String,dynamic> {
+    Exports._(Map<String,dynamic> map) : super(map);
+
+    // global getter
+    int global(String name) {
+        if (!this.containsKey(name)) {
+            throw Exception("Global $name not found");
+        }
+        final dynamic item = this[name];
+        if (!(item is WebAssembly.Global)) {
+            throw Exception("$name is not a global");
+        }
+        return item.value;
+    }
+
+    // instance check
+    bool instanceOf(int ptr, int id) => this["__instanceOf"](ptr, id);
+
+    // basic memory management functions
+    int alloc(int size, int id) => this["__alloc"](size, id);
+    int retain(int ptr)         => this["__retain"](ptr);
+    void release(int ptr)       => this["__release"](ptr);
+
+    // strings
+    int allocString(String string) => this["__allocString"](string);
+    String getString(int ptr)      => this["__getString"](ptr);
+    
+    // basic arrays
+    int allocArray<T>(int id, List<T> values)    => this["__allocArray"](id, values);
+    List<T> getArray<T>(int ptr)                 => this["__getArray"](ptr);
+    void getArrayTo(int ptr, List<num> target)   => this["__getArrayTo"](ptr, target);
+    List<T> getArrayView<T extends num>(int ptr) => this["__getArrayView"](ptr);
+    
+    // specific typed arrays
+    Int8List getInt8List(int ptr)       => this["__getInt8List"](ptr);
+    Int8List getInt8ListView(int ptr)   => this["__getInt8ListView"](ptr);
+    Uint8List getUint8List(int ptr)     => this["__getUint8List"](ptr);
+    Uint8List getUint8ListView(int ptr) => this["__getUint8ListView"](ptr);
+    Uint8ClampedList getUint8ClampedList(int ptr)     => this["__getUint8ClampedList"](ptr);
+    Uint8ClampedList getUint8ClampedListView(int ptr) => this["__getUint8ClampedListView"](ptr);
+    
+    Int16List getInt16List(int ptr)       => this["__getInt16List"](ptr);
+    Int16List getInt16ListView(int ptr)   => this["__getInt16ListView"](ptr);
+    Uint16List getUint16List(int ptr)     => this["__getUint16List"](ptr);
+    Uint16List getUint16ListView(int ptr) => this["__getUint16ListView"](ptr);
+
+    Int32List getInt32List(int ptr)       => this["__getInt32List"](ptr);
+    Int32List getInt32ListView(int ptr)   => this["__getInt32ListView"](ptr);
+    Uint32List getUint32List(int ptr)     => this["__getUint32List"](ptr);
+    Uint32List getUint32ListView(int ptr) => this["__getUint32ListView"](ptr);
+
+    Int64List getInt64List(int ptr)       => this["__getInt64List"](ptr);
+    Int64List getInt64ListView(int ptr)   => this["__getInt64ListView"](ptr);
+    Uint64List getUint64List(int ptr)     => this["__getUint64List"](ptr);
+    Uint64List getUint64ListView(int ptr) => this["__getUint64ListView"](ptr);
+
+    Float32List getFloat32List(int ptr)     => this["__getFloat32List"](ptr);
+    Float32List getFloat32ListView(int ptr) => this["__getFloat32ListView"](ptr);
+    Float64List getFloat64List(int ptr)     => this["__getFloat64List"](ptr);
+    Float64List getFloat64ListView(int ptr) => this["__getFloat64ListView"](ptr);
+    
+    // yeah looks like this stuff isn't gonna work because of symbol names
+    // needing dart:mirrors which is forbidden in web
+    /*@override
+    dynamic noSuchMethod(Invocation invocation) {
+        print(invocation);
+        print(invocation.memberName);
+        print("accessor: ${invocation.isAccessor}, getter: ${invocation.isGetter}, setter: ${invocation.isSetter}, method: ${invocation.isMethod}");
+
+        final String name = invocation.memberName. // ???
+        if (map.containsKey(name)) {
+            if (invocation.isMethod) {
+                //return this.map[name](invocation.positionalArguments);
+                return _callWithList(this.map[name], invocation.positionalArguments);
+            }
+        } else {
+            super.noSuchMethod(invocation);
+        }
+    }*/
 }
 
 typedef _TypedListMaker<T> = T Function(ByteBuffer buffer, int offset, int length);
