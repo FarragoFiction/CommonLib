@@ -101,7 +101,7 @@ abstract class WasmLoader {
             }
             env["trace"] = allowInterop(trace);*/
             _injectWrapperFunction();
-            _injectTrace(extendedExports, env);
+            env["trace"] = _injectTrace(extendedExports, env);
         }
 
         if (!env.containsKey("seed")) {
