@@ -95,11 +95,13 @@ abstract class WasmLoader {
         }
 
         if (!env.containsKey("trace")) {
-            void trace(int msg, int n, List<dynamic> args) {
+            /*void trace(int msg, int n, List<dynamic> args) {
                 final WebAssembly.Memory memory = extendedExports.containsKey("memory") ? extendedExports["memory"] : env["memory"];
                 print("trace: ${getString(memory, msg)}${n != null ? " ":""}${args.getRange(0, n).join(",")}");
             }
-            env["trace"] = allowInterop(trace);
+            env["trace"] = allowInterop(trace);*/
+            _injectWrapperFunction();
+            _injectTrace(extendedExports, env);
         }
 
         if (!env.containsKey("seed")) {
@@ -571,9 +573,18 @@ void _injectWrapperFunction() {
             wrapped.original = f;
             return wrapped;
         }
+        
+        function WasmLoaderInjectTrace(extendedExports, env) {
+            return function(msg, n, ...args) {
+                const memory = extendedExports.memory || env.memory;
+                console.log(`trace: \${getString(memory, msg)}\${n ? " " : ""}\${args.slice(0, n).join(", ")}`);
+            }
+        }
     """;
     document.head.append(block);
 }
 
 @JS("WasmLoaderWrapFunction")
 external dynamic _wrap(Function f, Function argsFunc);
+@JS("WasmLoaderInjectTrace")
+external Function _injectTrace(Map<String,dynamic> extendedExports, Map<String,dynamic> env);
