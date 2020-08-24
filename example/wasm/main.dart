@@ -7,6 +7,8 @@ import "package:CommonLib/Compression.dart";
 import "package:CommonLib/Utility.dart";
 import "package:CommonLib/WebAssembly.dart" as W;
 
+import "package:CommonLib/src/compression/legacybytebuilder.dart";
+
 Element output = querySelector('#output');
 Future<void> main() async {
     //wasmTest();
