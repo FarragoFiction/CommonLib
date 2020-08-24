@@ -118,11 +118,17 @@ class ByteBuilder {
 		}
 
 		out = new Uint8List(outLength);
-		out.setRange(start, out.length + start, _buffer);
+		//out.setRange(start, out.length + start, _buffer);
+		for(int i=0; i<_bufferLength; i++) {
+			out[i+start] = _buffer[i];
+		}
 
 		if (toExtend != null) {
 			final Uint8List view = toExtend.asUint8List();
-			out.setRange(0, view.length, view);
+			//out.setRange(0, view.length, view);
+			for (int i=0; i<view.length; i++) {
+				out[i] = view[i];
+			}
 		}
 
 		if (_position > 0) {
