@@ -10,7 +10,7 @@ import "package:CommonLib/WebAssembly.dart" as W;
 Element output = querySelector('#output');
 Future<void> main() async {
     //wasmTest();
-    builderTest();
+    //builderTest();
 }
 
 Future<void> wasmTest() async {
@@ -33,7 +33,7 @@ Future<void> wasmTest() async {
     print(result);
 }
 
-Future<void> builderTest() async {
+/*Future<void> builderTest() async {
 
     const int iterations = 1000;
 
@@ -80,4 +80,4 @@ Future<void> builderTest() async {
     runTestSync("buffer", testBuffer, iterations);
     runTestSync("buffer", testBuffer, iterations);
     runTestSync("buffer", testBuffer, iterations);
-}
+}*/
