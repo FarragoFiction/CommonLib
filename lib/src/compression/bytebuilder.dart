@@ -124,7 +124,7 @@ class ByteBuilder {
 		}
 
 		if (_position > 0) {
-			out[out.length] = _currentbyte;
+			out[out.length-1] = _currentbyte;
 		}
 
 		return out.buffer;
