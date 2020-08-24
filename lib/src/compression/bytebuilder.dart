@@ -122,7 +122,7 @@ class ByteBuilder {
 
 		if (toExtend != null) {
 			final Uint8List view = toExtend.asUint8List();
-			out.setAll(0, view);
+			out.setRange(0, view.length, view);
 		}
 
 		if (_position > 0) {
