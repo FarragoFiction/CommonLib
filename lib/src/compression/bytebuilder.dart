@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-export "legacybytebuilder.dart";
+//export "legacybytebuilder.dart";
 
 /// Builds a compacted [ByteBuffer] of data with syntax similar to [StringBuffer].
 class ByteBuilder {
@@ -88,7 +88,7 @@ class ByteBuilder {
 
 	/// Appends all numbers in [bits] to the buffer as [length] bit long segments.
 	void appendAllBits(List<int> bits, int length) {
-		_extend(targetLength: _buffer.length + ((bits.length * length) ~/ 8));
+		_extend(targetLength: _bufferLength + ((bits.length * length) ~/ 8));
 		for (final int number in bits) {
 			this.appendBits(number, length);
 		}
@@ -101,7 +101,7 @@ class ByteBuilder {
 
 	/// Appends all numbers in [numbers] using Exponential-Golomb encoding.
 	void appendAllExpGolomb(List<int> numbers) {
-		_extend(targetLength: _buffer.length + numbers.length);
+		_extend(targetLength: _bufferLength + numbers.length);
 		for (final int number in numbers) {
 			this.appendExpGolomb(number);
 		}

@@ -35,29 +35,40 @@ Future<void> wasmTest() async {
 
 Future<void> builderTest() async {
 
-    const int iterations = 1000;
+    const int iterations = 1;
 
     final Random rand = new Random(1);
 
-    final List<int> bytes1 = new List<int>.generate(20000, (int i) => rand.nextInt(256));
+    final List<int> bytes1 = new List<int>.generate(200000, (int i) => rand.nextInt(256));
     final List<int> bytes2 = new List<int>.generate(1000, (int i) => rand.nextInt(256));
     final List<int> bytes3 = new List<int>.generate(1000, (int i) => rand.nextInt(256));
 
+    final List<int> test = new List<int>.filled(1632, 1);
+
     void testString() {
         final ByteBuilder builder = new LegacyByteBuilder();
-        builder.appendBits(0x8, 4);
+        /*builder.appendBits(0x8, 4);
         builder.appendAllBytes(bytes1);
         builder.appendAllBytes(bytes2);
-        builder.appendAllBytes(bytes3);
+        builder.appendAllBytes(bytes3);*/
+        for (int i=0; i<720; i++) {
+            builder.appendByte(1);
+            builder.appendAllBytes(test);
+        }
+
         final ByteBuffer out = builder.toBuffer();
     }
 
     void testBuffer() {
-        final ByteBuilder builder = new ByteBuilder();
-        builder.appendBits(0x8, 4);
+        final ByteBuilder builder = new ByteBuilder();//length: (408+1)*720*(4+1));
+        /*builder.appendBits(0x8, 4);
         builder.appendAllBytes(bytes1);
         builder.appendAllBytes(bytes2);
-        builder.appendAllBytes(bytes3);
+        builder.appendAllBytes(bytes3);*/
+        for (int i=0; i<720; i++) {
+            builder.appendByte(1);
+            builder.appendAllBytes(test);
+        }
         final ByteBuffer out = builder.toBuffer();
     }
 
