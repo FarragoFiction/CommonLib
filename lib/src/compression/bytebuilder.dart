@@ -144,6 +144,90 @@ class ByteBuilder {
 	}
 }
 
+class ByteBuilder2 extends ByteBuilder {
+	static const int _bufferBlockSize = 0x8000; // 32k
+
+	Uint8List _buffer;
+	int _bufferLength;
+
+	ByteBuilder2({int length = _bufferBlockSize, bool bigEndian = true}) : super() {
+		this.bigEndian = bigEndian;
+		this._buffer = new Uint8List(length);
+		this._bufferLength = 0;
+	}
+
+	void _extend({int targetLength}) {
+		targetLength ??= _bufferLength + _bufferBlockSize;
+		if (targetLength <= _buffer.length) { return; }
+		int newLength = _buffer.length + _bufferBlockSize;
+		while (newLength < targetLength) {
+			newLength += _bufferBlockSize;
+		}
+
+		final Uint8List newBuffer = new Uint8List(newLength);
+		newBuffer.setRange(0, _buffer.length, _buffer);
+		_buffer = newBuffer;
+	}
+
+	@override
+	ByteBuffer toBuffer([ByteBuffer toExtend]) {
+		Uint8List out;
+		int outLength = _position > 0 ? _bufferLength + 1 : _bufferLength;
+		int start = 0;
+		if (toExtend != null) {
+			outLength += toExtend.lengthInBytes;
+			start = toExtend.lengthInBytes;
+		}
+
+		out = new Uint8List(outLength);
+		out.setRange(start, out.length + start, _buffer);
+
+		if (toExtend != null) {
+			final Uint8List view = toExtend.asUint8List();
+			out.setAll(0, view);
+		}
+
+		if (_position > 0) {
+			out[out.length] = _currentbyte;
+		}
+
+		return out.buffer;
+	}
+
+	@override
+	void appendBit(bool bit) {
+		if (bit) {
+			if (bigEndian) {
+				_currentbyte |= (1 << (7 - _position));
+			} else {
+				_currentbyte |= (1 << _position);
+			}
+		}
+		_position++;
+		if (_position >= 8) {
+			_position = 0; // reset bit position
+			_buffer[_bufferLength] = _currentbyte; // put value into buffer
+			_bufferLength++; // increment buffer length
+			if (_bufferLength >= _buffer.length) { // extend buffer if necessary
+				_extend();
+			}
+			_currentbyte = 0; // reset current bit buffer
+		}
+	}
+
+	@override
+	void appendAllBits(List<int> bits, int length) {
+		_extend(targetLength: _buffer.length + ((bits.length * length) ~/ 8));
+		super.appendAllBits(bits, length);
+	}
+
+	@override
+	void appendAllExpGolomb(List<int> numbers) {
+		_extend(targetLength: _buffer.length + numbers.length);
+		super.appendAllExpGolomb(numbers);
+	}
+}
+
 /// Reads a [ByteBuffer] as a stream of bits.
 class ByteReader {
 	/// Source buffer.

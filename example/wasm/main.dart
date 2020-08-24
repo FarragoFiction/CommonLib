@@ -1,11 +1,19 @@
 import "dart:async";
 import "dart:html";
+import 'dart:math';
 import "dart:typed_data";
 
+import "package:CommonLib/Compression.dart";
+import "package:CommonLib/Utility.dart";
 import "package:CommonLib/WebAssembly.dart" as W;
 
 Element output = querySelector('#output');
 Future<void> main() async {
+    //wasmTest();
+    builderTest();
+}
+
+Future<void> wasmTest() async {
     print("wasm test!");
 
     final W.Program module = await W.WasmLoader.instantiate(window.fetch("recolour.wasm"));
@@ -23,4 +31,53 @@ Future<void> main() async {
     e.release(resultPointer);
 
     print(result);
+}
+
+Future<void> builderTest() async {
+
+    const int iterations = 1000;
+
+    final Random rand = new Random(1);
+
+    final List<int> bytes1 = new List<int>.generate(20000, (int i) => rand.nextInt(256));
+    final List<int> bytes2 = new List<int>.generate(1000, (int i) => rand.nextInt(256));
+    final List<int> bytes3 = new List<int>.generate(1000, (int i) => rand.nextInt(256));
+
+    void testString() {
+        final ByteBuilder builder = new ByteBuilder();
+        builder.appendAllBytes(bytes1);
+        builder.appendAllBytes(bytes2);
+        builder.appendAllBytes(bytes3);
+        final ByteBuffer out = builder.toBuffer();
+    }
+
+    void testBuffer() {
+        final ByteBuilder builder = new ByteBuilder2();
+        builder.appendAllBytes(bytes1);
+        builder.appendAllBytes(bytes2);
+        builder.appendAllBytes(bytes3);
+        final ByteBuffer out = builder.toBuffer();
+    }
+
+    runTestSync("string", testString, iterations);
+    runTestSync("buffer", testBuffer, iterations);
+    runTestSync("string", testString, iterations);
+    runTestSync("buffer", testBuffer, iterations);
+    runTestSync("string", testString, iterations);
+    runTestSync("buffer", testBuffer, iterations);
+    runTestSync("string", testString, iterations);
+    runTestSync("buffer", testBuffer, iterations);
+    runTestSync("string", testString, iterations);
+    runTestSync("buffer", testBuffer, iterations);
+
+    runTestSync("string", testString, iterations);
+    runTestSync("string", testString, iterations);
+    runTestSync("string", testString, iterations);
+    runTestSync("string", testString, iterations);
+    runTestSync("string", testString, iterations);
+    runTestSync("buffer", testBuffer, iterations);
+    runTestSync("buffer", testBuffer, iterations);
+    runTestSync("buffer", testBuffer, iterations);
+    runTestSync("buffer", testBuffer, iterations);
+    runTestSync("buffer", testBuffer, iterations);
 }
