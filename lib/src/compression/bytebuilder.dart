@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+export "legacybytebuilder.dart";
+
 /// Builds a compacted [ByteBuffer] of data with syntax similar to [StringBuffer].
 class ByteBuilder {
 	static const int _bufferBlockSize = 0x8000; // 32k

@@ -43,6 +43,15 @@ Future<void> builderTest() async {
     final List<int> bytes2 = new List<int>.generate(1000, (int i) => rand.nextInt(256));
     final List<int> bytes3 = new List<int>.generate(1000, (int i) => rand.nextInt(256));
 
+    void testString() {
+        final ByteBuilder builder = new LegacyByteBuilder();
+        builder.appendBits(0x8, 4);
+        builder.appendAllBytes(bytes1);
+        builder.appendAllBytes(bytes2);
+        builder.appendAllBytes(bytes3);
+        final ByteBuffer out = builder.toBuffer();
+    }
+
     void testBuffer() {
         final ByteBuilder builder = new ByteBuilder();
         builder.appendBits(0x8, 4);
@@ -52,14 +61,14 @@ Future<void> builderTest() async {
         final ByteBuffer out = builder.toBuffer();
     }
 
+    runTestSync("string", testString, iterations);
     runTestSync("buffer", testBuffer, iterations);
+    runTestSync("string", testString, iterations);
     runTestSync("buffer", testBuffer, iterations);
+    runTestSync("string", testString, iterations);
     runTestSync("buffer", testBuffer, iterations);
+    runTestSync("string", testString, iterations);
     runTestSync("buffer", testBuffer, iterations);
-    runTestSync("buffer", testBuffer, iterations);
-    runTestSync("buffer", testBuffer, iterations);
-    runTestSync("buffer", testBuffer, iterations);
-    runTestSync("buffer", testBuffer, iterations);
-    runTestSync("buffer", testBuffer, iterations);
+    runTestSync("string", testString, iterations);
     runTestSync("buffer", testBuffer, iterations);
 }
