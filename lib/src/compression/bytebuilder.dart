@@ -118,17 +118,11 @@ class ByteBuilder {
 		}
 
 		out = new Uint8List(outLength);
-		//out.setRange(start, out.length + start, _buffer);
-		for(int i=0; i<_bufferLength; i++) {
-			out[i+start] = _buffer[i];
-		}
+		out.setRange(start, out.length + start, _buffer);
 
 		if (toExtend != null) {
 			final Uint8List view = toExtend.asUint8List();
-			//out.setRange(0, view.length, view);
-			for (int i=0; i<view.length; i++) {
-				out[i] = view[i];
-			}
+			out.setRange(0, view.length, view);
 		}
 
 		if (_position > 0) {
@@ -136,6 +130,20 @@ class ByteBuilder {
 		}
 
 		return out.buffer;
+	}
+
+	/// Extend the internal buffer to accommodate a target length
+	void _extend({int targetLength}) {
+		targetLength ??= _bufferLength + _bufferBlockSize;
+		if (targetLength <= _buffer.length) { return; }
+		int newLength = _buffer.length + _bufferBlockSize;
+		while (newLength < targetLength) {
+			newLength += _bufferBlockSize;
+		}
+
+		final Uint8List newBuffer = new Uint8List(newLength);
+		newBuffer.setRange(0, _buffer.length, _buffer);
+		_buffer = newBuffer;
 	}
 
 	/// Convenience function for pretty-printing a [ByteBuffer].
@@ -154,20 +162,6 @@ class ByteBuilder {
 		sb.write("]");
 
 		print(sb.toString());
-	}
-
-	/// Extend the internal buffer to accommodate a target length
-	void _extend({int targetLength}) {
-		targetLength ??= _bufferLength + _bufferBlockSize;
-		if (targetLength <= _buffer.length) { return; }
-		int newLength = _buffer.length + _bufferBlockSize;
-		while (newLength < targetLength) {
-			newLength += _bufferBlockSize;
-		}
-
-		final Uint8List newBuffer = new Uint8List(newLength);
-		newBuffer.setRange(0, _buffer.length, _buffer);
-		_buffer = newBuffer;
 	}
 }
 
