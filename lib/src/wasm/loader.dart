@@ -16,65 +16,83 @@ import "webassembly.dart" as WebAssembly;
 
 abstract class WasmLoader {
     // Runtime header offsets
-    static const int ID_OFFSET = -8;
-    static const int SIZE_OFFSET = -4;
+    static const int idOffset = -8;
+    static const int sizeOffset = -4;
 
     // Runtime ids
-    static const int ARRAYBUFFER_ID = 0;
-    static const int STRING_ID = 1;
+    static const int arrayBufferId = 0;
+    static const int stringId = 1;
 
     // Runtime type information
-    static const int ARRAYBUFFERVIEW = 1 << 0;
-    static const int ARRAY = 1 << 1;
-    static const int STATICARRAY = 1 << 2;
-    static const int VAL_ALIGN_OFFSET = 6;
-    static const int VAL_SIGNED = 1 << 11;
-    static const int VAL_FLOAT = 1 << 12;
-    static const int VAL_MANAGED = 1 << 14;
+    static const int arrayBufferView = 1 << 0;
+    static const int array = 1 << 1;
+    static const int staticArray = 1 << 2;
+    static const int valAlignOffset = 6;
+    static const int valSigned = 1 << 11;
+    static const int valFloat = 1 << 12;
+    static const int valManaged = 1 << 14;
 
     // Array(BufferView) layout
-    static const int ARRAYBUFFERVIEW_BUFFER_OFFSET = 0;
-    static const int ARRAYBUFFERVIEW_DATASTART_OFFSET = 4;
-    static const int ARRAYBUFFERVIEW_DATALENGTH_OFFSET = 8;
-    static const int ARRAYBUFFERVIEW_SIZE = 12;
-    static const int ARRAY_LENGTH_OFFSET = 12;
-    static const int ARRAY_SIZE = 16;
+    static const int arrayBufferViewBufferOffset = 0;
+    static const int arrayBufferViewDataStartOffset = 4;
+    static const int arrayBufferViewDataLengthOffset = 8;
+    static const int arrayBufferViewSize = 12;
+    static const int arrayLengthOffset = 12;
+    static const int arraySize = 16;
 
     //const BIGINT = typeof BigUint64Array !== "undefined";
     //const THIS = Symbol();
-    static const int CHUNKSIZE = 1024;
+    static const int chunkSize = 1024;
+
+    static bool _supported;
+    /// Checks the JS environment for WebAssembly support
+    static bool checkSupport() {
+        if (_supported != null) { return _supported; }
+        final js.JsObject wasm = js.context["WebAssembly"];
+        if(wasm == null) { _supported = false; return false; }
+        final js.JsFunction inst = wasm["instantiate"];
+        if(inst == null) { _supported = false; return false; }
+
+        final WebAssembly.Module module = new WebAssembly.Module(new Uint8List.fromList(<int>[0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]).buffer);
+        if (module == null) { _supported = false; return false; }
+
+        final WebAssembly.Instance instance = new WebAssembly.Instance(module);
+        if (instance == null) { _supported = false; return false; }
+        _supported = true;
+        return true;
+    }
 
     /// Gets a string from an U32 and an U16 view on a memory.
-    static String getStringImpl(ByteBuffer buffer, int ptr) {
+    static String _getStringImpl(ByteBuffer buffer, int ptr) {
         final Uint32List U32 = buffer.asUint32List();
         final Uint16List U16 = buffer.asUint16List();
 
-        int length = U32[ptr + SIZE_OFFSET >> 2] >> 1;
+        int length = U32[ptr + sizeOffset >> 2] >> 1;
         int offset = ptr >> 1;
 
-        if (length <= CHUNKSIZE) {
+        if (length <= chunkSize) {
             return String.fromCharCodes(U16.sublist(offset, offset + length));
         }
 
         final StringBuffer parts = new StringBuffer();
         do {
-            final int last = U16[offset + CHUNKSIZE - 1];
-            final int size = last >= 0xD800 && last <= 0xDC00 ? CHUNKSIZE - 1 : CHUNKSIZE;
+            final int last = U16[offset + chunkSize - 1];
+            final int size = last >= 0xD800 && last <= 0xDC00 ? chunkSize - 1 : chunkSize;
             parts.write(String.fromCharCodes(U16.sublist(offset, offset += size)));
             length -= size;
-        } while (length > CHUNKSIZE);
+        } while (length > chunkSize);
 
         parts.write(String.fromCharCodes(U16.sublist(offset, offset + length)));
         return parts.toString();
     }
 
     /// Prepares the base module prior to instantiation.
-    static Map<String,dynamic> preInstantiate(Map<String, dynamic> imports) {
+    static Map<String,dynamic> _preInstantiate(Map<String, dynamic> imports) {
         final Map<String,dynamic> extendedExports = <String,dynamic>{};
 
         String getString(WebAssembly.Memory memory, int ptr) {
             if (memory == null) { return "<yet unknown>"; }
-            return getStringImpl(memory.buffer, ptr);
+            return _getStringImpl(memory.buffer, ptr);
         }
 
         // add common imports used by stdlib for convenience
@@ -117,7 +135,7 @@ abstract class WasmLoader {
     }
 
     /// Prepares the final module once instantiation is complete.
-    static Map<String,dynamic> postInstantiate(Map<String,dynamic> extendedExports, WebAssembly.Instance instance) {
+    static Map<String,dynamic> _postInstantiate(Map<String,dynamic> extendedExports, WebAssembly.Instance instance) {
         final Map<String,dynamic> exports = <String,dynamic>{};
         for(final String key in objectKeys(instance.exports)) {
             final Object value = getProperty(instance.exports, key);
@@ -142,7 +160,7 @@ abstract class WasmLoader {
         /// Gets and validate runtime type info for the given id for array like objects
         int getArrayInfo(int id) {
             final int info = getInfo(id);
-            if ((info & (ARRAYBUFFERVIEW | ARRAY | STATICARRAY)) == 0) {
+            if ((info & (arrayBufferView | array | staticArray)) == 0) {
                 throw Exception("Not an array: $id, flags=$info");
             }
             return info;
@@ -160,14 +178,14 @@ abstract class WasmLoader {
 
         /// Gets the runtime alignment of a collection's values.
         int getValueAlign(int info) {
-            return 31 - clz32((info >> VAL_ALIGN_OFFSET) & 31);
+            return 31 - clz32((info >> valAlignOffset) & 31);
         }
 
         /// Allocates a new string in the module's memory and returns its retained pointer.
         int __allocString(String string) {
             final Uint16List U16 = memory.buffer.asUint16List();
             final int length = string.length;
-            final int ptr = alloc(length << 1, STRING_ID);
+            final int ptr = alloc(length << 1, stringId);
             final int p = ptr >> 1;
             for (int i=0; i < length; ++i) {
                 U16[p + i] = string.codeUnitAt(i);
@@ -179,11 +197,11 @@ abstract class WasmLoader {
         /// Reads a string from the module's memory by its pointer.
         String __getString(int ptr) {
             final Uint32List U32 = memory.buffer.asUint32List();
-            final int id = U32[ptr + ID_OFFSET >> 2];
-            if (id != STRING_ID) {
+            final int id = U32[ptr + idOffset >> 2];
+            if (id != stringId) {
                 throw Exception("Not a string: $ptr");
             }
-            return getStringImpl(memory.buffer, ptr);
+            return _getStringImpl(memory.buffer, ptr);
         }
         extendedExports["__getString"] = allowInterop(__getString);
 
@@ -211,24 +229,24 @@ abstract class WasmLoader {
             final int info = getArrayInfo(id);
             final int align = getValueAlign(info);
             final int length = values.length;
-            final int buf = alloc(length << align, info & STATICARRAY != 0 ? id : ARRAYBUFFER_ID );
+            final int buf = alloc(length << align, info & staticArray != 0 ? id : arrayBufferId );
 
             int result;
-            if (info & STATICARRAY != 0) {
+            if (info & staticArray != 0) {
                 result = buf;
             } else {
-                final int arr = alloc(info & ARRAY != 0 ? ARRAY_SIZE : ARRAYBUFFERVIEW_SIZE, id);
+                final int arr = alloc(info & array != 0 ? arraySize : arrayBufferViewSize, id);
                 final Uint32List U32 = memory.buffer.asUint32List();
-                U32[arr + ARRAYBUFFERVIEW_BUFFER_OFFSET >> 2] = retain(buf);
-                U32[arr + ARRAYBUFFERVIEW_DATASTART_OFFSET >> 2] = buf;
-                U32[arr + ARRAYBUFFERVIEW_DATALENGTH_OFFSET >> 2] = length << align;
-                if (info & ARRAY != 0) {
-                    U32[arr + ARRAY_LENGTH_OFFSET >> 2] = length;
+                U32[arr + arrayBufferViewBufferOffset >> 2] = retain(buf);
+                U32[arr + arrayBufferViewDataStartOffset >> 2] = buf;
+                U32[arr + arrayBufferViewDataLengthOffset >> 2] = length << align;
+                if (info & array != 0) {
+                    U32[arr + arrayLengthOffset >> 2] = length;
                 }
                 result = arr;
             }
-            final List<num> view = getView(align, info & VAL_SIGNED != 0, info & VAL_FLOAT != 0);
-            if (info & VAL_MANAGED != 0) {
+            final List<num> view = getView(align, info & valSigned != 0, info & valFloat != 0);
+            if (info & valManaged != 0) {
                 for (int i = 0; i<length; ++i) {
                     view[(buf >> align) + i] = retain(values[i]);
                 }
@@ -242,16 +260,16 @@ abstract class WasmLoader {
         /// Gets a live view on an array's values in the module's memory. Infers the array type from RTTI.
         List<num> __getArrayView(int arr) {
             final Uint32List U32 = memory.buffer.asUint32List();
-            final int id = U32[arr + ID_OFFSET >> 2];
+            final int id = U32[arr + idOffset >> 2];
             final int info = getArrayInfo(id);
             final int align = getValueAlign(info);
-            int buf = info & STATICARRAY != 0
+            int buf = info & staticArray != 0
                 ? arr
-                : U32[arr + ARRAYBUFFERVIEW_DATASTART_OFFSET >> 2];
-            final int length = info & ARRAY != 0
-                ? U32[arr + ARRAY_LENGTH_OFFSET >> 2]
-                : U32[buf + SIZE_OFFSET >> 2] >> align;
-            return getView(align, info & VAL_SIGNED != 0, info & VAL_FLOAT != 0).sublist(buf >>= align, buf + length);
+                : U32[arr + arrayBufferViewDataStartOffset >> 2];
+            final int length = info & array != 0
+                ? U32[arr + arrayLengthOffset >> 2]
+                : U32[buf + sizeOffset >> 2] >> align;
+            return getView(align, info & valSigned != 0, info & valFloat != 0).sublist(buf >>= align, buf + length);
         }
         extendedExports["__getArrayView"] = allowInterop(__getArrayView);
 
@@ -272,8 +290,8 @@ abstract class WasmLoader {
         /// Gets a live view on a typed array's values in the module's memory.
         T getTypedArrayView<T extends List<num>>(_TypedListInfo<T> info, int ptr) {
             final Uint32List U32 = memory.buffer.asUint32List();
-            final int bufPtr = U32[ptr + ARRAYBUFFERVIEW_DATASTART_OFFSET >> 2];
-            return info.newList(memory.buffer, bufPtr, U32[bufPtr + SIZE_OFFSET >>2] >> info.align);
+            final int bufPtr = U32[ptr + arrayBufferViewDataStartOffset >> 2];
+            return info.newList(memory.buffer, bufPtr, U32[bufPtr + sizeOffset >>2] >> info.align);
         }
 
         /// Copies a typed array's values from the module's memory.
@@ -330,7 +348,7 @@ abstract class WasmLoader {
         /// Tests whether an object is an instance of the class represented by the specified base id.
         bool __instanceOf(int ptr, int baseId) {
             final Uint32List U32 = memory.buffer.asUint32List();
-            int id = U32[ptr + ID_OFFSET >> 2];
+            int id = U32[ptr + idOffset >> 2];
             if (id <= U32[rttiBase >> 2]) {
                 do {
                     if (id == baseId) {
@@ -348,7 +366,7 @@ abstract class WasmLoader {
         if (!extendedExports.containsKey("table")) { extendedExports["table"] = table; }
 
         // Demangle exports and provide the usual utility on the prototype
-        return demangle(exports, extendedExports);
+        return _demangle(exports, extendedExports);
     }
 
     static bool isResponse(dynamic src) {
@@ -360,7 +378,7 @@ abstract class WasmLoader {
     }
 
     /// Asynchronously instantiates an AssemblyScript module from anything that can be instantiated.
-    static Future<Program> instantiate(dynamic source, [Map<String,dynamic> imports]) async {
+    static Future<WasmProgram> instantiate(dynamic source, [Map<String,dynamic> imports]) async {
         imports ??= <String,dynamic>{};
     
         source = await source;
@@ -369,40 +387,40 @@ abstract class WasmLoader {
         }
 
         final WebAssembly.Module module = isModule(source) ? source : await promiseToFuture(WebAssembly.compile(source));
-        final Map<String,dynamic> extended = preInstantiate(imports);
+        final Map<String,dynamic> extended = _preInstantiate(imports);
         final WebAssembly.Instance instance = new WebAssembly.Instance(module, jsify(imports));
-        final Map<String,dynamic> exports = postInstantiate(extended, instance);
+        final Map<String,dynamic> exports = _postInstantiate(extended, instance);
         
-        return new Program(module, instance, exports);
+        return new WasmProgram(module, instance, exports);
     }
 
     /// Synchronously instantiates an AssemblyScript module from a WebAssembly.Module or binary buffer.
-    static Program instantiateSync(dynamic source, [Map<String,dynamic> imports]) {
+    static WasmProgram instantiateSync(dynamic source, [Map<String,dynamic> imports]) {
         imports ??= <String, dynamic>{};
 
         final WebAssembly.Module module = isModule(source) ? source : new WebAssembly.Module(source);
-        final Map<String,dynamic> extended = preInstantiate(imports);
+        final Map<String,dynamic> extended = _preInstantiate(imports);
         final WebAssembly.Instance instance = new WebAssembly.Instance(module, jsify(imports));
-        final Map<String,dynamic> exports = postInstantiate(extended, instance);
+        final Map<String,dynamic> exports = _postInstantiate(extended, instance);
 
-        return new Program(module, instance, exports);
+        return new WasmProgram(module, instance, exports);
     }
 
     /// Asynchronously instantiates an AssemblyScript module from a response, i.e. as obtained by `fetch`.
-    static Future<Program> instantiateStreaming(dynamic source, [Map<String,dynamic> imports]) async {
+    static Future<WasmProgram> instantiateStreaming(dynamic source, [Map<String,dynamic> imports]) async {
         imports ??= <String, dynamic>{};
         if (WebAssembly.instantiateStreaming == null) {
             source = await source;
             return instantiate(isResponse(source) ? source.arrayBuffer() : source, imports);
         }
-        final Map<String,dynamic> extended = preInstantiate(imports);
+        final Map<String,dynamic> extended = _preInstantiate(imports);
         final WebAssembly.ResultObject result = await promiseToFuture(WebAssembly.instantiateStreaming(source, jsify(imports)));
-        final Map<String,dynamic> exports = postInstantiate(extended, result.instance);
+        final Map<String,dynamic> exports = _postInstantiate(extended, result.instance);
 
-        return new Program(result.module, result.instance, exports);
+        return new WasmProgram(result.module, result.instance, exports);
     }
 
-    static Map<String,dynamic> demangle(Map<String,dynamic> exports, [Map<String,dynamic> extendedExports]) {
+    static Map<String,dynamic> _demangle(Map<String,dynamic> exports, [Map<String,dynamic> extendedExports]) {
         extendedExports ??= <String,dynamic>{};
         final RegExp getSet = new RegExp("^(get|set)");
 
@@ -437,7 +455,6 @@ abstract class WasmLoader {
                 if (name.startsWith(getSet)) {
                     //TODO: getset stuff
                     //print("$name is a get/set");
-                    //TODO: function wrapping
                 } else if (elem is Function) {
                     //print("$name is a function");
                     _injectWrapperFunction();
@@ -445,8 +462,6 @@ abstract class WasmLoader {
                 } else {
                     //print("$name is something else");
                     curr[name] = elem;
-                    //print(elem.runtimeType);
-                    //js.context["console"].callMethod("log", <dynamic>[elem]);
                 }
             }
         }
@@ -455,17 +470,17 @@ abstract class WasmLoader {
     }
 }
 
-class Program {
+class WasmProgram {
     final WebAssembly.Module module;
     final WebAssembly.Instance instance;
     final Map<String,dynamic> exportMap;
-    final Exports exports;
+    final WasmExports exports;
 
-    Program(WebAssembly.Module this.module, WebAssembly.Instance this.instance, Map<String,dynamic> this.exportMap) : this.exports = new Exports._(exportMap);
+    WasmProgram(WebAssembly.Module this.module, WebAssembly.Instance this.instance, Map<String,dynamic> this.exportMap) : this.exports = new WasmExports._(exportMap);
 }
 
-class Exports extends MapView<String,dynamic> {
-    Exports._(Map<String,dynamic> map) : super(map);
+class WasmExports extends MapView<String,dynamic> {
+    WasmExports._(Map<String,dynamic> map) : super(map);
 
     // global getter
     int global(String name) {
@@ -524,25 +539,6 @@ class Exports extends MapView<String,dynamic> {
     Float32List getFloat32ListView(int ptr) => this["__getFloat32ListView"](ptr);
     Float64List getFloat64List(int ptr)     => this["__getFloat64List"](ptr);
     Float64List getFloat64ListView(int ptr) => this["__getFloat64ListView"](ptr);
-    
-    // yeah looks like this stuff isn't gonna work because of symbol names
-    // needing dart:mirrors which is forbidden in web
-    /*@override
-    dynamic noSuchMethod(Invocation invocation) {
-        print(invocation);
-        print(invocation.memberName);
-        print("accessor: ${invocation.isAccessor}, getter: ${invocation.isGetter}, setter: ${invocation.isSetter}, method: ${invocation.isMethod}");
-
-        final String name = invocation.memberName. // ???
-        if (map.containsKey(name)) {
-            if (invocation.isMethod) {
-                //return this.map[name](invocation.positionalArguments);
-                return _callWithList(this.map[name], invocation.positionalArguments);
-            }
-        } else {
-            super.noSuchMethod(invocation);
-        }
-    }*/
 }
 
 typedef _TypedListMaker<T> = T Function(ByteBuffer buffer, int offset, int length);

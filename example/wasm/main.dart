@@ -5,26 +5,27 @@ import "dart:typed_data";
 
 import "package:CommonLib/Compression.dart";
 import "package:CommonLib/Utility.dart";
-import "package:CommonLib/WebAssembly.dart" as W;
+import "package:CommonLib/WebAssembly.dart";
 
 import "package:CommonLib/src/compression/legacybytebuilder.dart";
 
 Element output = querySelector('#output');
 Future<void> main() async {
     //wasmTest();
-    builderTest();
+    //builderTest();
+    print(WasmLoader.checkSupport());
 }
 
 Future<void> wasmTest() async {
     print("wasm test!");
 
-    final W.Program module = await W.WasmLoader.instantiate(window.fetch("recolour.wasm"));
+    final WasmProgram module = await WasmLoader.instantiate(window.fetch("recolour.wasm"));
     print(module.exports);
     print(module.exports["add"](1,2));
 
     //final List<int> testNumbers = <int>[1,2,3,4,5,6,7,8,9];
     final List<int> testNumbers = new List<int>.generate(200000, (int i) => i+1);
-    final W.Exports e = module.exports;
+    final WasmExports e = module.exports;
 
     final int arrayPtr = e.retain(e.allocArray(e.global("Uint32Array_ID"), testNumbers));
     final int resultPointer = e["test"](arrayPtr);
