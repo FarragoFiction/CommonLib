@@ -82,7 +82,7 @@ abstract class PathUtils {
 
         // resolve package based urls... this isn't strictly necessary but it's nice
         if (path.startsWith("package:")) {
-            path = "/packages/${path.substring(8)}";
+            path = "packages/${path.substring(8)}";
         } else if (path.startsWith("/")) { // treat leading slashes as absolute root anyway
             absoluteRoot = true;
             path = path.substring(1);
