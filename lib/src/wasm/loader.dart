@@ -370,16 +370,18 @@ abstract class WasmLoader {
     }
 
     static bool isResponse(dynamic src) {
-        if (src == null) { return false; }
-        print("Debug stuff, what's this thing's type?");
-        print("runtimeType: ${src.runtimeType}");
-        print("src is Response: ${src is Response}");
-        print("js type check: ${instanceof(src, type_Response)}");
-        return src != null && src is Response;
+        //if (src == null) { return false; }
+        //print("Debug stuff, what's this thing's type?");
+        //print("runtimeType: ${src.runtimeType}");
+        //print("src is Response: ${src is Response}");
+        //print("js type check: ${instanceof(src, type_Response)}");
+        //return src != null && src is Response;
+        return src != null && instanceof(src, type_Response);
     }
 
     static bool isModule(dynamic src) {
-        return src is WebAssembly.Module;
+        //return src is WebAssembly.Module;
+        return instanceof(src, WebAssembly.type_Module);
     }
 
     /// Asynchronously instantiates an AssemblyScript module from anything that can be instantiated.

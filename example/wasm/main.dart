@@ -9,11 +9,16 @@ import "package:CommonLib/WebAssembly.dart";
 
 import "package:CommonLib/src/compression/legacybytebuilder.dart";
 
+import "dart:js_util";
+import "package:CommonLib/src/wasm/bindings.dart";
+
 Element output = querySelector('#output');
 Future<void> main() async {
     //wasmTest();
     //builderTest();
-    print(WasmLoader.checkSupport());
+    //print(WasmLoader.checkSupport());
+
+    print("sanity check: ${instanceof("hello", type_Response)}");
 }
 
 Future<void> wasmTest() async {
