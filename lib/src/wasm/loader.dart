@@ -370,6 +370,10 @@ abstract class WasmLoader {
     }
 
     static bool isResponse(dynamic src) {
+        if (src == null) { return false; }
+        print("Debug stuff, what's this thing's type?");
+        print("runtimeType: ${src.runtimeType}");
+        print("src is Response: ${src is Response}");
         return src != null && src is Response;
     }
 
