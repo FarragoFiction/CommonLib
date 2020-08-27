@@ -12,6 +12,9 @@ class Module {
     external Module(ByteBuffer bufferSource);
 }
 
+@JS("Module")
+external Function get type_Module;
+
 @JS()
 class Instance {
     external Instance(Module module, [dynamic importObject]);

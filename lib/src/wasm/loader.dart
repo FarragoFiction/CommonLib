@@ -374,6 +374,7 @@ abstract class WasmLoader {
         print("Debug stuff, what's this thing's type?");
         print("runtimeType: ${src.runtimeType}");
         print("src is Response: ${src is Response}");
+        print("js type check: ${instanceof(src, type_Response)}");
         return src != null && src is Response;
     }
 
@@ -578,3 +579,6 @@ void _injectWrapperFunction() {
 
 @JS("WasmLoaderWrapFunction")
 external dynamic _wrap(Function f, Function argsFunc);
+
+@JS("WasmLoaderGetType")
+external dynamic _getType(dynamic obj);

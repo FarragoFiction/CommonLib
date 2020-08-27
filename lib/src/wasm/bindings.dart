@@ -13,6 +13,9 @@ class Response {
     external ByteBuffer arrayBuffer();
 }
 
+@JS("Response")
+external Function get type_Response;
+
 @JS()
 class Promise<T> {}
 
