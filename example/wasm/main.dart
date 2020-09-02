@@ -14,11 +14,11 @@ import "package:CommonLib/src/wasm/bindings.dart";
 
 Element output = querySelector('#output');
 Future<void> main() async {
-    //wasmTest();
+    wasmTest();
     //builderTest();
     //print(WasmLoader.checkSupport());
 
-    print("sanity check: ${instanceof("hello", type_Response)}");
+    //print("sanity check: ${instanceof("hello", type_Response)}");
 }
 
 Future<void> wasmTest() async {

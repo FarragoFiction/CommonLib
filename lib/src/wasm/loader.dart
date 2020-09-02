@@ -370,18 +370,11 @@ abstract class WasmLoader {
     }
 
     static bool isResponse(dynamic src) {
-        //if (src == null) { return false; }
-        //print("Debug stuff, what's this thing's type?");
-        //print("runtimeType: ${src.runtimeType}");
-        //print("src is Response: ${src is Response}");
-        //print("js type check: ${instanceof(src, type_Response)}");
-        //return src != null && src is Response;
         return src != null && instanceof(src, type_Response);
     }
 
     static bool isModule(dynamic src) {
-        //return src is WebAssembly.Module;
-        return instanceof(src, WebAssembly.type_Module);
+        return src != null && instanceof(src, WebAssembly.type_Module);
     }
 
     /// Asynchronously instantiates an AssemblyScript module from anything that can be instantiated.
@@ -393,11 +386,27 @@ abstract class WasmLoader {
             return instantiateStreaming(source, imports);
         }
 
-        final WebAssembly.Module module = isModule(source) ? source : await promiseToFuture(WebAssembly.compile(source));
+        WebAssembly.Module module;
+        WebAssembly.Instance instance;
+
+        try {
+            module = isModule(source) ? source : await promiseToFuture(WebAssembly.compile(source));
+        // ignore: avoid_catches_without_on_clauses
+        } catch(e) {
+            throw WasmLoaderException("Compilation failed", e);
+        }
+
         final Map<String,dynamic> extended = _preInstantiate(imports);
-        final WebAssembly.Instance instance = new WebAssembly.Instance(module, jsify(imports));
+
+        try {
+            instance = new WebAssembly.Instance(module, jsify(imports));
+        // ignore: avoid_catches_without_on_clauses
+        } catch(e) {
+            throw WasmLoaderException("Instantiation failed", e);
+        }
+
         final Map<String,dynamic> exports = _postInstantiate(extended, instance);
-        
+
         return new WasmProgram(module, instance, exports);
     }
 
@@ -405,9 +414,24 @@ abstract class WasmLoader {
     static WasmProgram instantiateSync(dynamic source, [Map<String,dynamic> imports]) {
         imports ??= <String, dynamic>{};
 
-        final WebAssembly.Module module = isModule(source) ? source : new WebAssembly.Module(source);
+        WebAssembly.Module module;
+        WebAssembly.Instance instance;
+
+        try {
+            module = isModule(source) ? source : new WebAssembly.Module(source);
+        // ignore: avoid_catches_without_on_clauses
+        } catch(e) {
+            throw WasmLoaderException("Sync compilation failed", e);
+        }
+
         final Map<String,dynamic> extended = _preInstantiate(imports);
-        final WebAssembly.Instance instance = new WebAssembly.Instance(module, jsify(imports));
+
+        try {
+            instance = new WebAssembly.Instance(module, jsify(imports));
+        // ignore: avoid_catches_without_on_clauses
+        } catch(e) {
+            throw WasmLoaderException("Sync instantiation failed", e);
+        }
         final Map<String,dynamic> exports = _postInstantiate(extended, instance);
 
         return new WasmProgram(module, instance, exports);
@@ -421,7 +445,13 @@ abstract class WasmLoader {
             return instantiate(isResponse(source) ? source.arrayBuffer() : source, imports);
         }
         final Map<String,dynamic> extended = _preInstantiate(imports);
-        final WebAssembly.ResultObject result = await promiseToFuture(WebAssembly.instantiateStreaming(source, jsify(imports)));
+        WebAssembly.ResultObject result;
+        try {
+            result = await promiseToFuture(WebAssembly.instantiateStreaming(source, jsify(imports)));
+        // ignore: avoid_catches_without_on_clauses
+        } catch(e) {
+            throw WasmLoaderException("Streaming compilation failed", e);
+        }
         final Map<String,dynamic> exports = _postInstantiate(extended, result.instance);
 
         return new WasmProgram(result.module, result.instance, exports);
@@ -584,3 +614,13 @@ external dynamic _wrap(Function f, Function argsFunc);
 
 @JS("WasmLoaderGetType")
 external dynamic _getType(dynamic obj);
+
+class WasmLoaderException implements Exception {
+    String message;
+    dynamic errorObject;
+
+    WasmLoaderException(String this.message, [dynamic this.errorObject]);
+
+    @override
+    String toString() => "WasmLoaderException: $message${errorObject!=null ? ", error object: $errorObject" : ""}";
+}
