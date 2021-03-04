@@ -94,7 +94,7 @@ class LegacyByteBuilder extends ByteBuilder {
     }
 
     /// Creates a new [ByteBuffer] containing the data in this ByteBuilder.
-    ByteBuffer toBuffer([ByteBuffer toExtend]) {
+    ByteBuffer toBuffer([ByteBuffer? toExtend]) {
         int length = _position > 0 ? _data.length+1 : _data.length;
         int offset = 0;
 

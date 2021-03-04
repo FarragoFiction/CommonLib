@@ -5,7 +5,7 @@ typedef WeightFunction<T> = double Function(T item, double weight);
 
 /// Used as a basis to [WeightedList] to allow Random.pick and similar to use weights.
 abstract class WeightedIterable<T> implements Iterable<T> {
-    WeightFunction<T> initialWeightSetter;
+    WeightFunction<T>? initialWeightSetter;
     T get(double position) {
         final double totalWeight = getTotalWeight();
 
@@ -19,7 +19,7 @@ abstract class WeightedIterable<T> implements Iterable<T> {
             }
         }
 
-        return null; // shouldn't happen
+        throw Exception("Somehow a weighted iterable ran out of weights. This shouldn't happen!");
     }
 
     Iterable<WeightPair<T>> get pairs;
@@ -37,8 +37,8 @@ abstract class WeightedIterable<T> implements Iterable<T> {
     }
 
     double _getInitialWeight(T item, double weight) {
-        if (this.initialWeightSetter != null) {
-            return initialWeightSetter(item, weight);
+        if (initialWeightSetter != null) {
+            return initialWeightSetter!(item, weight);
         }
         return weight;
     }
@@ -70,18 +70,18 @@ abstract class WeightedIterable<T> implements Iterable<T> {
 // ignore: prefer_mixin
 class WeightedList<T> extends WeightedIterable<T> with ListMixin<T> {
 
-    List<WeightPair<T>> _list;
+    late List<WeightPair<T>?> _list;
 
-    WeightedList({int length, WeightFunction<T> initialWeightSetter}) {
+    WeightedList({int? length, WeightFunction<T>? initialWeightSetter}) {
         this.initialWeightSetter = initialWeightSetter;
         if (length == null) {
             this._list = <WeightPair<T>>[];
         } else {
-            this._list = new List<WeightPair<T>>(length);
+            this._list = new List<WeightPair<T>?>.filled(length, null);
         }
     }
 
-    factory WeightedList.from(Iterable<dynamic> other, {bool growable = true, WeightFunction<T> initialWeightSetter, bool copyPairs = false}) {
+    factory WeightedList.from(Iterable<dynamic> other, {bool growable = true, WeightFunction<T>? initialWeightSetter, bool copyPairs = false}) {
         WeightedList<T> list;
         if (growable == true) {
             list = new WeightedList<T>(initialWeightSetter: initialWeightSetter)..length = other.length;
@@ -126,7 +126,7 @@ class WeightedList<T> extends WeightedIterable<T> with ListMixin<T> {
         return list;
     }
 
-    factory WeightedList.fromMap(Map<T, double> mapping, {bool growable = true, WeightFunction<T> initialWeightSetter}) {
+    factory WeightedList.fromMap(Map<T, double> mapping, {bool growable = true, WeightFunction<T>? initialWeightSetter}) {
         WeightedList<T> list;
         if (growable == true) {
             list = new WeightedList<T>(initialWeightSetter: initialWeightSetter)..length = mapping.length;
@@ -136,7 +136,7 @@ class WeightedList<T> extends WeightedIterable<T> with ListMixin<T> {
 
         int i=0;
         for (final T value in mapping.keys) {
-            list.setPair(i, new WeightPair<T>(value, mapping[value]));
+            list.setPair(i, new WeightPair<T>(value, mapping[value]!));
             i++;
         }
 
@@ -150,17 +150,18 @@ class WeightedList<T> extends WeightedIterable<T> with ListMixin<T> {
         final double weightPosition = position.clamp(0.0,1.0) * totalWeight;
         double runningTotal = 0.0;
 
-        for (final WeightPair<T> pair in _list) {
+        for (final WeightPair<T>? pair in _list) {
+            if (pair == null) { continue; }
             runningTotal += _getWeight(pair);
             if (weightPosition <= runningTotal) {
                 return pair.item;
             }
         }
 
-        return null; // shouldn't happen
+        throw Exception("Somehow a weighted list ran out of weights. This shouldn't happen if it's filled correctly!");
     }
 
-    WeightPair<T> getPair(int index) {
+    WeightPair<T>? getPair(int index) {
         return _list[index];
     }
 
@@ -175,12 +176,13 @@ class WeightedList<T> extends WeightedIterable<T> with ListMixin<T> {
     void collateWeights() {
         final Map<T, double> totals = <T, double>{};
 
-        for (final WeightPair<T> pair in _list) {
+        for (final WeightPair<T>? pair in _list) {
+            if (pair == null) { continue; }
             if (!totals.containsKey(pair.item)) {
                 totals[pair.item] = 0.0;
             }
 
-            totals[pair.item] += pair.weight;
+            totals[pair.item] = totals[pair.item]! + pair.weight;
         }
 
         _list.clear();
@@ -189,14 +191,14 @@ class WeightedList<T> extends WeightedIterable<T> with ListMixin<T> {
 
     void sortByWeight([bool descending = false]) {
         if (descending) {
-            this._list.sort((WeightPair<T> a, WeightPair<T> b) => b.weight.compareTo(a.weight));
+            this._list.sort((WeightPair<T>? a, WeightPair<T>? b) => b!.weight.compareTo(a!.weight));
         } else {
-            this._list.sort((WeightPair<T> a, WeightPair<T> b) => a.weight.compareTo(b.weight));
+            this._list.sort((WeightPair<T>? a, WeightPair<T>? b) => a!.weight.compareTo(b!.weight));
         }
     }
 
     @override
-    Iterable<WeightPair<T>> get pairs => _list;
+    Iterable<WeightPair<T>> get pairs => _list.whereType();
 
     // ##########################################
     // Add single
@@ -252,13 +254,13 @@ class WeightedList<T> extends WeightedIterable<T> with ListMixin<T> {
     // overrides
 
     @override
-    void retainWhere(Predicate<T> test) => _list.retainWhere((WeightPair<T> pair) => test(pair.item));
+    void retainWhere(Predicate<T> test) => _list.retainWhere((WeightPair<T>? pair) => test(pair!.item));
 
     @override
-    void removeWhere(Predicate<T> test) => _list.removeWhere((WeightPair<T> pair) => test(pair.item));
+    void removeWhere(Predicate<T> test) => _list.removeWhere((WeightPair<T>? pair) => test(pair!.item));
 
     @override
-    T operator [](int index) => _list[index].item;
+    T operator [](int index) => _list[index]!.item;
 
     @override
     void operator []=(int index, T value){
@@ -353,7 +355,7 @@ abstract class WrappedWeightedIterable<T> extends WeightedIterable<T> with Itera
 }
 
 class WeightPairIterator<T> extends Iterator<T> {
-    Iterator<WeightPair<T>> _iter;
+    late Iterator<WeightPair<T>> _iter;
 
     WeightPairIterator(WeightedIterable<T> iterable) {
         this._iter = iterable.pairs.iterator;
@@ -383,7 +385,10 @@ class WeightedMappedIterable<T, U> extends WrappedWeightedIterable<U> {
 }
 
 class SubTypeWeightedIterable<T extends U, U> extends WrappedWeightedIterable<T> {
-    SubTypeWeightedIterable(Iterable<WeightPair<U>> source) : super(source.where((WeightPair<U> pair) => pair.item is T).map((WeightPair<U> pair) => new WeightPair<T>(pair.item, pair.weight)));
+    SubTypeWeightedIterable(Iterable<WeightPair<U>> source) : super(source.where((WeightPair<U> pair) => pair.item is T).map((WeightPair<U> pair) {
+        // ignore: avoid_as
+        return new WeightPair<T>(pair.item as T, pair.weight);
+    }));
 }
 
 

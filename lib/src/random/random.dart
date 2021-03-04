@@ -5,11 +5,11 @@ import "../collection/weighted_lists.dart";
 ///
 /// Can be fed to anything which wants a Math.Random without issues
 class Random implements Math.Random {
-	Math.Random _impl;
+	late Math.Random _impl;
 	/// used for spawning a new random from this one without new stuff
 	int _echo = 0;
 
-	Random([int seed]) {
+	Random([int? seed]) {
 		this.setSeed(seed);
 	}
 
@@ -49,7 +49,7 @@ class Random implements Math.Random {
 
 	// new stuff #######################################
 
-	void setSeed(int seed) {
+	void setSeed(int? seed) {
 		this._impl = new Math.Random(seed);
 		if(seed != null) {
 			_echo = seed + 1;
@@ -60,7 +60,7 @@ class Random implements Math.Random {
 
 	int nextIntRange(int min, int max) => this.nextInt(1+max-min) + min;
 
-	T pickFrom<T>(Iterable<T> list, [bool useWeights = true]) {
+	T? pickFrom<T>(Iterable<T> list, [bool useWeights = true]) {
 		if (list.isEmpty) { return null; }
 		if (useWeights && list is WeightedIterable<T>) {
 			return list.get(this.nextDouble());

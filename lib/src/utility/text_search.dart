@@ -4,7 +4,7 @@ import 'package:CommonLib/src/utility/predicates.dart';
 class Search {
     static String _stringMapping(String s) => s; // default mapping for when we have strings
 
-    static Set<T> textSearch<T>(Iterable<T> items, String termstring, [Mapping<T,String> mapping]) {
+    static Set<T>? textSearch<T>(Iterable<T>? items, String termstring, [Mapping<T,String>? mapping]) {
         if (items == null || items.isEmpty || (!(items.first is String) && mapping == null)) {
             return null;
         }
@@ -14,6 +14,8 @@ class Search {
             // ignore: avoid_as
             mapping = _stringMapping as Mapping<T,String>;
         }
+
+        if (mapping == null) { return null; }
 
         final List<SearchTerm> terms = processTerms(termstring);
 
@@ -95,12 +97,12 @@ class Search {
         return terms;
     }
 
-    static Element createListSearchBox<T>(Generator<List<T>> gatherer, Lambda<Set<T>> callback, {Mapping<T,String> mapping, String emptyCaption = "Search..."}) {
+    static Element createListSearchBox<T>(Generator<List<T>> gatherer, Lambda<Set<T>?> callback, {Mapping<T,String>? mapping, String emptyCaption = "Search..."}) {
         final TextInputElement element = new TextInputElement()
             ..placeholder = emptyCaption;
 
         void eventcallback(Event e){
-            final Set<T> results = textSearch(gatherer(), element.value, mapping);
+            final Set<T>? results = textSearch(gatherer(), element.value ?? "", mapping);
             callback(results);
         }
 

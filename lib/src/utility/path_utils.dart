@@ -3,7 +3,7 @@ import 'dart:math' as Math;
 import 'package:CommonLib/src/logging/logger.dart';
 
 abstract class PathUtils {
-    static final RegExp _protocol = new RegExp(r"\w+:\/\/");
+    static final RegExp _protocol = new RegExp(r"\w+://");
     static const String _tagName = "rootdepth";
     static Logger logger = Logger.get("Path Utils", false);
 
@@ -71,7 +71,7 @@ abstract class PathUtils {
         if (!_pathdepth.containsKey(path)) {
             _pathdepth[path] = getSubDirectoryCount(path);
         }
-        return _pathdepth[path];
+        return _pathdepth[path]!;
     }
 
     /// Does the same as [adjusted] but also resolves package: directives and absolute paths

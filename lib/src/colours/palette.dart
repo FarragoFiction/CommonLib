@@ -29,9 +29,9 @@ class Palette extends Object with IterableMixin<Colour>{
 
     Colour operator [](dynamic name) {
         if (name is String) {
-            return _colours.containsKey(name) ? _colours[name] : MISSING_COLOUR;
+            return _colours.containsKey(name) ? _colours[name]! : MISSING_COLOUR;
         } else if (name is int) {
-            return _colourIds.containsKey(name) ? _colourIds[name] : MISSING_COLOUR;
+            return _colourIds.containsKey(name) ? _colourIds[name]! : MISSING_COLOUR;
         }
         throw new ArgumentError.value(name, "'name' should be a String name or int id only");
     }
@@ -69,7 +69,7 @@ class Palette extends Object with IterableMixin<Colour>{
         if (!_colours.containsKey(name)) {
             return;
         }
-        final int id = _name2id[name];
+        final int id = _name2id[name]!;
 
         this._remove(name, id);
     }
@@ -78,7 +78,7 @@ class Palette extends Object with IterableMixin<Colour>{
         if (!_colourIds.containsKey(id)) {
             return;
         }
-        final String name = _id2name[id];
+        final String name = _id2name[id]!;
 
         this._remove(name, id);
     }
@@ -112,9 +112,9 @@ class Palette extends Object with IterableMixin<Colour>{
         element.append(new SpanElement()..style.fontWeight="bold"..text=title);
 
         for (final int id in this._colourIds.keys) {
-            final String name = _id2name[id];
+            final String name = _id2name[id]!;
 
-            final Colour col = _colourIds[id];
+            final Colour col = _colourIds[id]!;
 
             final DivElement div = new DivElement();
 

@@ -8,9 +8,9 @@ class ByteBuilder {
 	static const int _bufferBlockSize = 0x8000; // 32k
 
 	/// Internal buffer.
-	Uint8List _buffer;
+	late Uint8List _buffer;
 	/// Internal buffer's current position
-	int _bufferLength;
+	late int _bufferLength;
 	/// Current working byte, bits are appended to this up to 8, then it is added to the buffer.
 	int _currentbyte = 0;
 	/// Bit position within the current working byte.
@@ -108,7 +108,7 @@ class ByteBuilder {
 	}
 
 	/// Creates a new [ByteBuffer] containing the data in this ByteBuilder.
-	ByteBuffer toBuffer([ByteBuffer toExtend]) {
+	ByteBuffer toBuffer([ByteBuffer? toExtend]) {
 		Uint8List out;
 		int outLength = _position > 0 ? _bufferLength + 1 : _bufferLength;
 		int start = 0;
@@ -133,7 +133,7 @@ class ByteBuilder {
 	}
 
 	/// Extend the internal buffer to accommodate a target length
-	void _extend({int targetLength}) {
+	void _extend({int? targetLength}) {
 		targetLength ??= _bufferLength + _bufferBlockSize;
 		if (targetLength <= _buffer.length) { return; }
 		int newLength = _buffer.length + _bufferBlockSize;
@@ -168,7 +168,7 @@ class ByteBuilder {
 /// Reads a [ByteBuffer] as a stream of bits.
 class ByteReader {
 	/// Source buffer.
-	ByteData _bytes;
+	late ByteData _bytes;
 	/// Current bit position within the buffer.
 	int _position = 0;
 

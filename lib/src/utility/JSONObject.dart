@@ -23,7 +23,7 @@ class JSONObject extends Object with MapMixin<String,String>{
         json.addAll(jsonDecode(j));
     }
 
-    static Set<int> jsonStringToIntSet(String str) {
+    static Set<int> jsonStringToIntSet(String? str) {
         if(str == null) return <int>{};
         //print("str is $str");
         str = str.replaceAll("{", "");
@@ -45,7 +45,7 @@ class JSONObject extends Object with MapMixin<String,String>{
         return ret;
     }
 
-    static List<int> jsonStringToIntArray(String str) {
+    static List<int> jsonStringToIntArray(String? str) {
         if(str == null) return <int>[];
         //;
         str = str.replaceAll("[", "");
@@ -67,7 +67,7 @@ class JSONObject extends Object with MapMixin<String,String>{
         return ret;
     }
 
-    static Set<String> jsonStringToStringSet(String str) {
+    static Set<String> jsonStringToStringSet(String? str) {
         if(str == null) return <String>{};
         //print("str is $str");
         str = str.replaceAll("{", "");
@@ -88,7 +88,7 @@ class JSONObject extends Object with MapMixin<String,String>{
         return ret;
     }
 
-    static List<String> jsonStringToStringArray(String str) {
+    static List<String> jsonStringToStringArray(String? str) {
         if(str == null) return <String>[];
         //;
         str = str.replaceAll("[", "");
@@ -105,7 +105,7 @@ class JSONObject extends Object with MapMixin<String,String>{
     }
 
     @override
-    String operator [](Object key) {
+    String? operator [](Object? key) {
         final String obj = json[key];
         return obj;
     }
@@ -124,7 +124,7 @@ class JSONObject extends Object with MapMixin<String,String>{
     Iterable<String> get keys => json.keys;
 
     @override
-    String remove(Object key) {
+    String? remove(Object? key) {
         return json.remove(key);
     }
 }

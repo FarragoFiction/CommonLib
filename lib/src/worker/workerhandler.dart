@@ -12,15 +12,15 @@ class WorkerHandler {
     static const String traceLabel = "trace";
     static const String commandLabel = "command";
 
-    Worker _worker;
-    Stream<Event> onError;
+    Worker? _worker;
+    late Stream<Event> onError;
 
     final Map<int, Completer<dynamic>> _pending = <int, Completer<dynamic>>{};
     int _commandId = 0;
 
     WorkerHandler._(Worker this._worker) {
-        onError = this._worker.onError;
-        _worker.onMessage.listen(_handleMessage);
+        onError = this._worker!.onError;
+        _worker!.onMessage.listen(_handleMessage);
     }
 
     void _handleMessage(MessageEvent event) {
@@ -30,7 +30,7 @@ class WorkerHandler {
             final int id = data[idLabel];
 
             if (_pending.containsKey(id)) {
-                final Completer<dynamic> completer = _pending[id];
+                final Completer<dynamic> completer = _pending[id]!;
 
                 if (data.containsKey(errorLabel)) {
                     completer.completeError(new WorkerException(data[errorLabel]), new StackTrace.fromString(data[traceLabel]));
@@ -44,12 +44,12 @@ class WorkerHandler {
         }
     }
 
-    Future<T> sendCommand<T>(String command, {dynamic payload, bool expectReply = true}) async {
+    Future<T?> sendCommand<T>(String command, {dynamic payload, bool expectReply = true}) async {
         if (_worker == null) {
             throw new WorkerException("Worker is null");
         }
 
-        Completer<T> completer;
+        late Completer<T> completer;
 
         final Map<String,dynamic> data = <String,dynamic>{
             commandLabel: command,
@@ -68,7 +68,7 @@ class WorkerHandler {
             data[payloadLabel] = payload;
         }
 
-        _worker.postMessage(data);
+        _worker?.postMessage(data);
 
         if (expectReply) { return completer.future; }
 
@@ -81,7 +81,7 @@ class WorkerHandler {
         if (_worker == null) {
             throw new WorkerException("Worker is null");
         }
-        _worker.terminate();
+        _worker?.terminate();
         _worker = null;
 
         for (final Completer<dynamic> completer in _pending.values) {

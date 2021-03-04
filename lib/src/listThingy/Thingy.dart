@@ -7,10 +7,10 @@ class Thingy {
     static Colour orange = new Colour(255,100,0);
 
     String text;
-    Colour bgColor;
+    late Colour bgColor;
 
-    Thingy(String this.text, [Colour this.bgColor]){
-        bgColor ??= new Colour(0,0,0); //default is black
+    Thingy(String this.text, [Colour? bgColor]){
+        this.bgColor = bgColor ?? new Colour(0,0,0); //default is black
     }
 
     void renderSelf(Element container) {

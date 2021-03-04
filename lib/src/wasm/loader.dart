@@ -5,7 +5,6 @@ import "dart:async";
 import "dart:collection";
 import "dart:html";
 import "dart:js" as js;
-import "dart:math" as Math;
 import "dart:typed_data";
 
 import "package:js/js.dart";
@@ -44,19 +43,19 @@ abstract class WasmLoader {
     //const THIS = Symbol();
     static const int chunkSize = 1024;
 
-    static bool _supported;
+    static bool? _supported;
     /// Checks the JS environment for WebAssembly support
     static bool checkSupport() {
-        if (_supported != null) { return _supported; }
-        final js.JsObject wasm = js.context["WebAssembly"];
+        if (_supported != null) { return _supported!; }
+        final js.JsObject? wasm = js.context["WebAssembly"];
         if(wasm == null) { _supported = false; return false; }
-        final js.JsFunction inst = wasm["instantiate"];
+        final js.JsFunction? inst = wasm["instantiate"];
         if(inst == null) { _supported = false; return false; }
 
-        final WebAssembly.Module module = new WebAssembly.Module(new Uint8List.fromList(<int>[0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]).buffer);
+        final WebAssembly.Module? module = new WebAssembly.Module(new Uint8List.fromList(<int>[0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]).buffer);
         if (module == null) { _supported = false; return false; }
 
-        final WebAssembly.Instance instance = new WebAssembly.Instance(module);
+        final WebAssembly.Instance? instance = new WebAssembly.Instance(module);
         if (instance == null) { _supported = false; return false; }
         _supported = true;
         return true;
@@ -80,6 +79,7 @@ abstract class WasmLoader {
             final int size = last >= 0xD800 && last <= 0xDC00 ? chunkSize - 1 : chunkSize;
             parts.write(String.fromCharCodes(U16.sublist(offset, offset += size)));
             length -= size;
+        // ignore: invariant_booleans
         } while (length > chunkSize);
 
         parts.write(String.fromCharCodes(U16.sublist(offset, offset + length)));
@@ -90,7 +90,7 @@ abstract class WasmLoader {
     static Map<String,dynamic> _preInstantiate(Map<String, dynamic> imports) {
         final Map<String,dynamic> extendedExports = <String,dynamic>{};
 
-        String getString(WebAssembly.Memory memory, int ptr) {
+        String getString(WebAssembly.Memory? memory, int ptr) {
             if (memory == null) { return "<yet unknown>"; }
             return _getStringImpl(memory.buffer, ptr);
         }
@@ -113,10 +113,10 @@ abstract class WasmLoader {
         }
 
         if (!env.containsKey("trace")) {
-            void trace(int msg, [int n=0, dynamic a1, dynamic a2, dynamic a3, dynamic a4, dynamic a5, dynamic a6, dynamic a7, dynamic a8, dynamic a9, dynamic a10, dynamic a11, dynamic a12, dynamic a13, dynamic a14] ) {
+            void trace(int msg, [int? n=0, dynamic a1, dynamic a2, dynamic a3, dynamic a4, dynamic a5, dynamic a6, dynamic a7, dynamic a8, dynamic a9, dynamic a10, dynamic a11, dynamic a12, dynamic a13, dynamic a14] ) {
                 final List<dynamic> args = <dynamic>[a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14];
                 final WebAssembly.Memory memory = extendedExports.containsKey("memory") ? extendedExports["memory"] : env["memory"];
-                print("trace: ${getString(memory, msg)}${n != null ? " ":""}${args.getRange(0, n).join(",")}");
+                print("trace: ${getString(memory, msg)}${n != null ? " ":""}${args.getRange(0, n ?? 0).join(",")}");
             }
             env["trace"] = allowInterop(trace);
         }
@@ -142,7 +142,7 @@ abstract class WasmLoader {
             exports[key] = value;
         }
         final WebAssembly.Memory memory = exports["memory"];
-        final WebAssembly.Table table = exports["table"];
+        final WebAssembly.Table? table = exports["table"];
         final Function alloc = exports["__alloc"];
         final Function retain = exports["__retain"];
         final int rttiBase = exports.containsKey("__rtti_base") ? exports["__rtti_base"].value : ~0;
@@ -378,7 +378,7 @@ abstract class WasmLoader {
     }
 
     /// Asynchronously instantiates an AssemblyScript module from anything that can be instantiated.
-    static Future<WasmProgram> instantiate(dynamic source, [Map<String,dynamic> imports]) async {
+    static Future<WasmProgram> instantiate(dynamic source, [Map<String,dynamic>? imports]) async {
         imports ??= <String,dynamic>{};
     
         source = await source;
@@ -411,7 +411,7 @@ abstract class WasmLoader {
     }
 
     /// Synchronously instantiates an AssemblyScript module from a WebAssembly.Module or binary buffer.
-    static WasmProgram instantiateSync(dynamic source, [Map<String,dynamic> imports]) {
+    static WasmProgram instantiateSync(dynamic source, [Map<String,dynamic>? imports]) {
         imports ??= <String, dynamic>{};
 
         WebAssembly.Module module;
@@ -438,9 +438,11 @@ abstract class WasmLoader {
     }
 
     /// Asynchronously instantiates an AssemblyScript module from a response, i.e. as obtained by `fetch`.
-    static Future<WasmProgram> instantiateStreaming(dynamic source, [Map<String,dynamic> imports]) async {
+    static Future<WasmProgram> instantiateStreaming(dynamic source, [Map<String,dynamic>? imports]) async {
         imports ??= <String, dynamic>{};
-        if (WebAssembly.instantiateStreaming == null) {
+        //if (WebAssembly.instantiateStreaming == null) {
+        // hopefully this is a functional replacement
+        if (js.context["WebAssembly"]?["instantiateStreaming"] == null) {
             source = await source;
             return instantiate(isResponse(source) ? source.arrayBuffer() : source, imports);
         }
@@ -457,7 +459,7 @@ abstract class WasmLoader {
         return new WasmProgram(result.module, result.instance, exports);
     }
 
-    static Map<String,dynamic> _demangle(Map<String,dynamic> exports, [Map<String,dynamic> extendedExports]) {
+    static Map<String,dynamic> _demangle(Map<String,dynamic> exports, [Map<String,dynamic>? extendedExports]) {
         extendedExports ??= <String,dynamic>{};
         final RegExp getSet = new RegExp("^(get|set)");
 
@@ -510,10 +512,10 @@ abstract class WasmLoader {
 class WasmProgram {
     final WebAssembly.Module module;
     final WebAssembly.Instance instance;
-    final Map<String,dynamic> exportMap;
+    final Map<String,dynamic>? exportMap;
     final WasmExports exports;
 
-    WasmProgram(WebAssembly.Module this.module, WebAssembly.Instance this.instance, Map<String,dynamic> this.exportMap) : this.exports = new WasmExports._(exportMap);
+    WasmProgram(WebAssembly.Module this.module, WebAssembly.Instance this.instance, Map<String,dynamic>? this.exportMap) : this.exports = new WasmExports._(exportMap ?? <String,dynamic>{});
 }
 
 class WasmExports extends MapView<String,dynamic> {
@@ -528,7 +530,7 @@ class WasmExports extends MapView<String,dynamic> {
         if (!(item is WebAssembly.Global)) {
             throw Exception("$name is not a global");
         }
-        return item.value;
+        return item.value.toInt();
     }
 
     // instance check
@@ -606,7 +608,7 @@ void _injectWrapperFunction() {
             return wrapped;
         }
     """;
-    document.head.append(block);
+    document.head?.append(block);
 }
 
 @JS("WasmLoaderWrapFunction")

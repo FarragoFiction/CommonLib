@@ -3,7 +3,7 @@ import "dart:html";
 
 import "package:CommonLib/Workers.dart";
 
-Element output = querySelector('#output');
+Element? output = querySelector('#output');
 Future<void> main() async {
     print("worker test!");
 

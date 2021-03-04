@@ -1,4 +1,5 @@
-@JS()
+// this thing is ancient and hasn't worked reliably for a while I'd wager... -PL
+/*@JS()
 library tracer;
 
 import 'dart:collection';
@@ -54,8 +55,8 @@ class Tracer {
 
         final List<Frame> frames = <Frame>[];
 
-        String packageRoot;
-        String framePath;
+        String? packageRoot;
+        String? framePath;
 
         for (final JSFrame jsframe in jsframes) {
             frames.add(new Frame(Uri.parse(jsframe.fileName), jsframe.lineNumber, jsframe.columnNumber, jsframe.functionName));
@@ -66,7 +67,7 @@ class Tracer {
         final String pagePath = window.location.href;
 
         int similar = -1;
-        for (int i=0; i<min(framePath.length, pagePath.length); i++) {
+        for (int i=0; i<min(framePath!.length, pagePath.length); i++) {
             if (framePath[i] == pagePath[i]) {
                 similar = i;
             } else {
@@ -87,7 +88,7 @@ class Tracer {
 
         StackTrace trace = new Trace(frames);
 
-        getMappingForCurrentScript((SourceMaps.Mapping mapping) {
+        getMappingForCurrentScript((SourceMaps.Mapping? mapping) {
             if (mapping != null) {
                 //if (packageRoot == null) {
                     trace = mapStackTrace(mapping, trace);
@@ -179,3 +180,4 @@ class NullMapping implements SourceMaps.Mapping {
         return null;
     }
 }
+*/

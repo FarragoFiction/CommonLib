@@ -7,7 +7,7 @@ void main() {
     group("is literally anything happening?", ()
     {
         JsonHandler jsonHandler;
-        List<int> seadwellerBodies;
+        List<int>? seadwellerBodies;
 
         setUp(() {
             jsonHandler = simulatedDollData();
@@ -27,9 +27,9 @@ void main() {
 
 
 JsonHandler simulatedDollData() {
-    Map<String,dynamic> json = <String,dynamic>{};
+    final Map<String,dynamic> json = <String,dynamic>{};
     json["Lamia"] = <String, dynamic>{};
     json["Lamia"]["seaDwellerBodies"] = <int>[7,8,9,12,13,27,28,29,34,35,39,40,46,50,51,52,60,61];
-    json["Lamia"]["layers"] = {"Body": 77};
+    json["Lamia"]["layers"] = <String,int>{"Body": 77};
     return new JsonHandler(json);
 }

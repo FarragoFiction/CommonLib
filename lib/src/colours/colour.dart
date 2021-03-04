@@ -7,11 +7,11 @@ class Colour {
     static const double xyzEpsilon = 0.008856;
     static const double xyzKappa = 903.3;
 
-    int _alpha;
+    late int _alpha;
 
-    int _red;
-    int _green;
-    int _blue;
+    late int _red;
+    late int _green;
+    late int _blue;
 
     bool _hsv_dirty = true;
     double _hue = 0.0;
@@ -73,12 +73,15 @@ class Colour {
         }
     }
 
-    factory Colour.fromHexString(String hex) {
+    factory Colour.fromHexString(String? hex) {
+        if (hex == null) {
+            return new Colour();
+        }
         return new Colour.fromHex(int.tryParse(hex, radix:16) ?? 0, hex.length >= 8);
     }
 
-    factory Colour.fromStyleString(String hex) {
-        return new Colour.fromHexString(hex.substring(1));
+    factory Colour.fromStyleString(String? hex) {
+        return new Colour.fromHexString(hex?.substring(1));
     }
 
     factory Colour.hsv(double h, double s, double v) {
@@ -264,9 +267,9 @@ class Colour {
         fraction = fraction.clamp(0.0, 1.0);
         final double inverse = 1.0 / gamma;
 
-        final double r = pow( _lerp( pow(this.redDouble, gamma), pow(other.redDouble, gamma), fraction), inverse);
-        final double g = pow( _lerp( pow(this.greenDouble, gamma), pow(other.greenDouble, gamma), fraction), inverse);
-        final double b = pow( _lerp( pow(this.blueDouble, gamma), pow(other.blueDouble, gamma), fraction), inverse);
+        final double r = pow( _lerp( pow(this.redDouble, gamma).toDouble(), pow(other.redDouble, gamma).toDouble(), fraction), inverse).toDouble();
+        final double g = pow( _lerp( pow(this.greenDouble, gamma).toDouble(), pow(other.greenDouble, gamma).toDouble(), fraction), inverse).toDouble();
+        final double b = pow( _lerp( pow(this.blueDouble, gamma).toDouble(), pow(other.blueDouble, gamma).toDouble(), fraction), inverse).toDouble();
         final double a = _lerp(this.alphaDouble, other.alphaDouble, fraction);
 
         return new Colour.double(r,g,b,a);
@@ -299,25 +302,21 @@ class Colour {
     void _updateHSVfromRGB() {
         this._hsv_dirty = false;
 
-        List<double> hsv = RGBtoHSV(this.redDouble, this.greenDouble, this.blueDouble);
+        final List<double> hsv = RGBtoHSV(this.redDouble, this.greenDouble, this.blueDouble);
 
         this._hue = hsv[0];
         this._saturation = hsv[1];
         this._value = hsv[2];
-
-        hsv = null;
     }
 
     void _updateRGBfromHSV() {
         this._hsv_dirty = false;
 
-        List<double> rgb = HSVtoRGB(this._hue, this._saturation, this._value);
+        final List<double> rgb = HSVtoRGB(this._hue, this._saturation, this._value);
 
         this.redDouble = rgb[0];
         this.greenDouble = rgb[1];
         this.blueDouble = rgb[2];
-
-        rgb = null;
     }
 
     // LAB ###################################################################################
@@ -331,24 +330,21 @@ class Colour {
     void _updateLABfromRGB() {
         this._lab_dirty = false;
 
-        List<double> lab = RGBtoLAB(this.redDouble, this.greenDouble, this.blueDouble);
+        final List<double> lab = RGBtoLAB(this.redDouble, this.greenDouble, this.blueDouble);
+
         this._lab_lightness = lab[0];
         this._lab_a = lab[1];
         this._lab_b = lab[2];
-
-        lab = null;
     }
 
     void _updateRGBfromLAB() {
         this._lab_dirty = false;
 
-        List<double> rgb = LABtoRGB(this._lab_lightness, this._lab_a, this._lab_b);
+        final List<double> rgb = LABtoRGB(this._lab_lightness, this._lab_a, this._lab_b);
 
         this.redDouble = rgb[0];
         this.greenDouble = rgb[1];
         this.blueDouble = rgb[2];
-
-        rgb = null;
     }
 
     // Operators ###################################################################################
@@ -426,13 +422,13 @@ class Colour {
             }
         } else {
             if (index == 0) {
-                this.redDouble = value;
+                this.redDouble = value.toDouble();
             } else if (index == 1) {
-                this.greenDouble = value;
+                this.greenDouble = value.toDouble();
             } else if (index == 2) {
-                this.blueDouble = value;
+                this.blueDouble = value.toDouble();
             } else {
-                this.alphaDouble = value;
+                this.alphaDouble = value.toDouble();
             }
         }
     }
@@ -529,9 +525,9 @@ class Colour {
         y /= referenceWhite[1];
         z /= referenceWhite[2];
 
-        x = x > xyzEpsilon ? pow(x, 1/3.0) : (xyzKappa * x + 16) / 116.0;
-        y = y > xyzEpsilon ? pow(y, 1/3.0) : (xyzKappa * y + 16) / 116.0;
-        z = z > xyzEpsilon ? pow(z, 1/3.0) : (xyzKappa * z + 16) / 116.0;
+        x = x > xyzEpsilon ? pow(x, 1/3.0).toDouble() : (xyzKappa * x + 16) / 116.0;
+        y = y > xyzEpsilon ? pow(y, 1/3.0).toDouble() : (xyzKappa * y + 16) / 116.0;
+        z = z > xyzEpsilon ? pow(z, 1/3.0).toDouble() : (xyzKappa * z + 16) / 116.0;
 
         return <double>[max(0.0, 116 * y - 16), 500 * (x - y), 200 * (y - z)];
     }

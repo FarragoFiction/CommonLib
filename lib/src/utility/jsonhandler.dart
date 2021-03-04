@@ -7,7 +7,7 @@ class JsonHandler {
 
     JsonHandler(Map<String, dynamic> this.data);
 
-    T getValue<T>(String location, [T fallback]) {
+    T? getValue<T>(String location, [T? fallback]) {
         final List<String> tags = location.split(".");
         dynamic object = data;
 
@@ -44,7 +44,7 @@ class JsonHandler {
         return fallback;
     }
 
-    List<T> getArray<T>(String location) {
+    List<T>? getArray<T>(String location) {
         // ignore: always_specify_types, prefer_final_locals
         var value = this.getValue(location);
 

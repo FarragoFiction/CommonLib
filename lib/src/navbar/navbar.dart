@@ -14,21 +14,21 @@ Future<void> loadNavbar() async {
 }
 
 void handleVoid() {
-    if(getParameterByName("seerOfVoid",null)!= null) {
+    if(getParameterByName("seerOfVoid")!= null) {
         /*
           need to have css that looks like:
           html:not([data-seerOf=void]) .void {
             display:none;
           }
          */
-        Element html = document.documentElement;
+        final Element html = document.documentElement!;
         const String tag = "data-seerOf";
         if (html.getAttribute(tag) == "void") {
             html.removeAttribute(tag);
         } else {
             html.setAttribute(tag, "void");
         }
-    };
+    }
 }
 
 void onNavbarLoaded(String data) {
@@ -36,7 +36,7 @@ void onNavbarLoaded(String data) {
     final int subdirs = PathUtils.getPathDepth();
     data = data.replaceAllMapped(new RegExp("(href|src) ?= ?([\"'])(?!https?:)"), (Match m) => "${m.group(1)} = ${m.group(2)}${"../"*subdirs}");
 
-    querySelector("#navbar").appendHtml(data, treeSanitizer: NodeTreeSanitizer.trusted);
+    querySelector("#navbar")?.appendHtml(data, treeSanitizer: NodeTreeSanitizer.trusted);
 }
 
 
@@ -45,7 +45,7 @@ void onNavbarLoaded(String data) {
 String getParamStringMinusParam(String name) {
     String params = window.location.href.substring(window.location.href.indexOf("?") + 1);
     if (params == window.location.href) params = "";
-    final String value = getParameterByName(name);
+    final String? value = getParameterByName(name);
     final String replaceString = "$name=$value";
     //print("inside navbar params are $params, name is $name and value is $value, replaceString is $replaceString");
     if(value != null) {
@@ -57,9 +57,9 @@ String getParamStringMinusParam(String name) {
 
 //http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
 //simulatedParamsGlobalVar is the simulated global vars.
-String getParameterByName(String name, [String url]) {
+String? getParameterByName(String name, [String? url]) {
     Uri uri = Uri.base;
-    String tmp;
+    String? tmp;
     if (url != null) {
         uri = Uri.parse(url);
         // //print("uri is $uri");
@@ -81,7 +81,7 @@ String getParameterByName(String name, [String url]) {
         final String tmpurl = "$base?$simulatedParamsGlobalVar";
         ////print("Debugging tourney: base is $base, tmpurl is $tmpurl");
         uri = Uri.parse(tmpurl);
-        final String tmp = (uri.queryParameters[name]);
+        final String? tmp = (uri.queryParameters[name]);
         //if(tmp != null) print ("Debugging tourney: found param $name, it was $tmp!");
         return tmp;
     }
@@ -89,7 +89,7 @@ String getParameterByName(String name, [String url]) {
     return tmp;
 }
 
-String getRawParameterByName(String name, String url) {
+String? getRawParameterByName(String name, String? url) {
     Uri uri = Uri.base;
     if (url != null) {
         uri = new Uri.file(url); //TODO is there no built in way to parse a string as a URI? need for virtual parameters like ocDataSTrings from selfInsertOC=true
@@ -98,8 +98,8 @@ String getRawParameterByName(String name, String url) {
 }
 
 void toggleVoid() {
-    querySelector('body').style.backgroundColor = "#f8c858";
-    querySelector('body').style.backgroundImage = "url(images/pen15_bg1.png)"; //can not unsee the dics now.
+    querySelector('body')?.style.backgroundColor = "#f8c858";
+    querySelector('body')?.style.backgroundImage = "url(images/pen15_bg1.png)"; //can not unsee the dics now.
     //querySelectorAll(".void").forEach((Element e) => WHAT SHOULD I DO HEAR for DISPLAY:none);
     final List<Element> voidElements = querySelectorAll(".void");
     for (final Element v in voidElements) {
@@ -118,7 +118,7 @@ void toggle(Element v) {
     }
 }
 
-void show(Element v) {
+void show(Element? v) {
     if(v == null) {
         //print("ERROR: trying to show a null element");
         return;
@@ -127,7 +127,7 @@ void show(Element v) {
     v.style.display = "block";
 }
 
-void hide(Element v) {
+void hide(Element? v) {
     if(v == null) {
         //print("ERROR: trying to hide a null element");
         return;

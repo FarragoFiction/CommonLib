@@ -14,7 +14,7 @@ abstract class LZW {
 
         int code = pixels[0];
         for (final int px in pixels.sublist(1)) {
-            final int newCode = book.codeAfterAppend(code, px);
+            final int? newCode = book.codeAfterAppend(code, px);
             if (newCode == null) {
                 buf.add(code);
                 book.define(code, px);
@@ -38,27 +38,27 @@ abstract class LZW {
 /// the minimum power of 2 needed to represent all the codes and automatically increases
 /// as new codes are defined.
 class LZWCodeBook {
-    int colorBits;
+    late int colorBits;
     // The "clear" code which resets the table.
-    int clearCode;
+    late int clearCode;
     // The "end of data" code.
-    int endCode;
+    late int endCode;
 
     // A mapping from (c1, pixel) -> c2 that returns the new code for the pixel string
     // formed by appending a pixel to the end of c1's pixel string. (In addition, the
     // codes for single pixels are stored in the map with c1 set to 0.)
     // The key is encoded by shifting c1 to the left by eight bits and adding the pixel,
     // forming a 20-bit number.
-    Map<int, int> _codeAfterAppend;
+    late Map<int, int> _codeAfterAppend;
 
     // Codes from this value and above are not yet defined.
-    int nextUnused;
+    late int nextUnused;
 
     // The number of bits required to represent every code.
-    int bitsPerCode;
+    late int bitsPerCode;
 
     // The current size of the codebook.
-    int size;
+    late int size;
 
     LZWCodeBook(this.colorBits) {
         if (colorBits < 2) {
@@ -79,7 +79,7 @@ class LZWCodeBook {
 
     /// Returns the new code after appending a pixel to the pixel string represented by the previous code,
     /// or null if the code isn't in the table.
-    int codeAfterAppend(int code, int pixelIndex) {
+    int? codeAfterAppend(int code, int pixelIndex) {
         return _codeAfterAppend[(code << 8) | pixelIndex];
     }
 
