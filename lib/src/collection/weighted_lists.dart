@@ -224,7 +224,7 @@ class WeightedList<T> extends WeightedIterable<T> with ListMixin<T> {
         if (iterable is WeightedList<T>) {
             _list.addAll(iterable.pairs);
         } else {
-            _list.addAll(iterable.map(_createPair));
+            _list.addAll(iterable.map(_createPair).cast());
         }
     }
 
