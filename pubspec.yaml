@@ -13,6 +13,9 @@ dependencies:
   source_map_stack_trace: any
 
 dev_dependencies:
+  build: any
+  glob: any
+  path: any
   build_runner: ^1.6.0
   build_web_compilers: ^2.3.0
   test: any

@@ -5,10 +5,34 @@ targets:
         generate_for:
           exclude:
             - "**.worker.dart"
-      CommonLib|worker_builder:
-        enabled: true
+      CommonLib|file_list_builder:
+        options:
+          enabled: true
+          exclude:
+            - "**.html"
 
 builders:
+  file_list_builder:
+    import: "package:CommonLib/src/builder/builders.dart"
+    builder_factories:
+      - fileListBuilder
+    build_extensions:
+      .filelist:
+        - .json
+    build_to: cache
+    auto_apply: root_package
+    applies_builders:
+      - CommonLib|file_list_cleanup_builder
+    defaults:
+      options:
+        enabled: false
+      generate_for:
+        include:
+          - web/**.filelist
+          - example/**.filelist
+          - benchmark/**.filelist
+          - lib/**.filelist
+
   worker_builder:
     import: "package:build_web_compilers/builders.dart"
     builder_factories:
@@ -44,3 +68,11 @@ builders:
           - -O4
     applies_builders:
       - build_web_compilers|dart2js_archive_extractor
+
+post_process_builders:
+  file_list_cleanup_builder:
+    import: "package:CommonLib/src/builder/builders.dart"
+    builder_factory: "fileListCleanupBuilder"
+    defaults:
+      release_options:
+        enabled: true
