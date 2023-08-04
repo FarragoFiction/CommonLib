@@ -97,7 +97,7 @@ class Search {
         return terms;
     }
 
-    static Element createListSearchBox<T>(Generator<List<T>> gatherer, Lambda<Set<T>?> callback, {Mapping<T,String>? mapping, String emptyCaption = "Search..."}) {
+    static Element createListSearchBox<T>(Generator<Iterable<T>> gatherer, Lambda<Set<T>?> callback, {Mapping<T,String>? mapping, String emptyCaption = "Search..."}) {
         final TextInputElement element = new TextInputElement()
             ..placeholder = emptyCaption;
 
